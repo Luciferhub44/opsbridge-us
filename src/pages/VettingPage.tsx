@@ -49,22 +49,22 @@ export default function VettingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl">
         <div className="mb-10 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-900 text-white">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
             <ShieldCheck className="h-6 w-6" />
           </div>
-          <h1 className="text-3xl font-bold text-zinc-900">Provider Vetting</h1>
-          <p className="mt-2 text-zinc-600">Manual, prestige-based verification for US Business Owners.</p>
+          <h1 className="text-3xl font-bold text-foreground">Provider Vetting</h1>
+          <p className="mt-2 text-muted-foreground">Manual, prestige-based verification for US Business Owners.</p>
         </div>
 
         {!submitted ? (
           <Card className="p-8">
             <div className="space-y-8">
               <div className="space-y-4">
-                <h2 className="text-lg font-semibold text-zinc-900">1. Entity Verification</h2>
-                <p className="text-sm text-zinc-500">We verify your US business is active and in good standing via Middesk.</p>
+                <h2 className="text-lg font-semibold text-foreground">1. Entity Verification</h2>
+                <p className="text-sm text-muted-foreground">We verify your US business is active and in good standing via Middesk.</p>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-zinc-700">Legal Entity Name</label>
@@ -86,8 +86,8 @@ export default function VettingPage() {
               </div>
 
               <div className="space-y-4">
-                <h2 className="text-lg font-semibold text-zinc-900">2. Proof of Success</h2>
-                <p className="text-sm text-zinc-500">Submit a case study of a successful US-based operation you've managed.</p>
+                <h2 className="text-lg font-semibold text-foreground">2. Proof of Success</h2>
+                <p className="text-sm text-muted-foreground">Submit a case study of a successful US-based operation you've managed.</p>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-zinc-700">Case Study Title</label>
                   <Input 
@@ -105,16 +105,16 @@ export default function VettingPage() {
                     onChange={(e) => setFormData({ ...formData, operationalDetails: e.target.value })}
                   />
                 </div>
-                <div className="rounded-lg border-2 border-dashed border-zinc-200 p-8 text-center hover:border-zinc-300 transition-colors cursor-pointer">
-                  <Upload className="mx-auto h-8 w-8 text-zinc-400 mb-2" />
-                  <p className="text-sm font-medium text-zinc-900">Upload supporting documents</p>
-                  <p className="text-xs text-zinc-500 mt-1">PDF, DOCX up to 10MB (Articles of Inc, Tax IDs, etc.)</p>
+                <div className="rounded-lg border-2 border-dashed border-border p-8 text-center hover:border-border transition-colors cursor-pointer">
+                  <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+                  <p className="text-sm font-medium text-foreground">Upload supporting documents</p>
+                  <p className="text-xs text-muted-foreground mt-1">PDF, DOCX up to 10MB (Articles of Inc, Tax IDs, etc.)</p>
                 </div>
               </div>
 
-              <div className="rounded-lg bg-zinc-50 p-4 flex gap-3">
-                <AlertCircle className="h-5 w-5 text-zinc-400 shrink-0" />
-                <p className="text-xs text-zinc-500 leading-relaxed">
+              <div className="rounded-lg bg-background p-4 flex gap-3">
+                <AlertCircle className="h-5 w-5 text-muted-foreground shrink-0" />
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   By submitting, you agree to a manual review by our industry experts. This process typically takes 3-5 business days. 
                   We may contact you for additional professional references.
                 </p>
@@ -135,8 +135,8 @@ export default function VettingPage() {
               <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
                 <CheckCircle2 className="h-8 w-8" />
               </div>
-              <h2 className="text-2xl font-bold text-zinc-900">Application Submitted</h2>
-              <p className="mt-4 text-zinc-600 max-w-md mx-auto">
+              <h2 className="text-2xl font-bold text-foreground">Application Submitted</h2>
+              <p className="mt-4 text-muted-foreground max-w-md mx-auto">
                 Your vetting application is now being reviewed by our internal experts. 
                 We will notify you via email once your status is updated.
               </p>

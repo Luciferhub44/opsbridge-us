@@ -412,15 +412,15 @@ export default function Dashboard() {
   if (!profile) return <div className="flex h-screen items-center justify-center">Please log in.</div>;
 
   return (
-    <div className="flex min-h-screen bg-zinc-50">
+    <div className="flex min-h-screen bg-background">
       {profile?.role === 'provider' && !profile.onboarding_completed && !onboardingDismissed && (
         <ProviderOnboarding user={profile} onComplete={handleDismissOnboarding} />
       )}
-      <aside className="w-72 border-r border-zinc-200 bg-white flex flex-col h-screen sticky top-0">
+      <aside className="w-72 border-r border-border bg-white flex flex-col h-screen sticky top-0">
         <div className="p-8">
           <div className="flex items-center gap-3 mb-12">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 text-white font-bold text-xl ">O</div>
-            <span className="text-2xl font-bold tracking-tighter text-zinc-900">OpsBridge</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold text-xl ">O</div>
+            <span className="text-2xl font-bold tracking-tighter text-foreground">OpsBridge</span>
           </div>
 
           <nav className="space-y-1">
@@ -439,30 +439,30 @@ export default function Dashboard() {
                 className={cn(
                   "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                   activeTab === item.id 
-                    ? "bg-zinc-100 text-zinc-900" 
-                    : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"
+                    ? "bg-muted text-foreground" 
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
-                <item.icon className={cn("h-4 w-4", activeTab === item.id ? "text-zinc-900" : "text-zinc-400")} />
+                <item.icon className={cn("h-4 w-4", activeTab === item.id ? "text-foreground" : "text-muted-foreground")} />
                 {item.label}
               </button>
             ))}
           </nav>
         </div>
 
-        <div className="mt-auto p-4 border-t border-zinc-100">
+        <div className="mt-auto p-4 border-t border-border">
           <div className="flex items-center gap-3 mb-4 px-2">
-            <div className="h-10 w-10 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600 font-bold overflow-hidden border border-zinc-200">
+            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground font-bold overflow-hidden border border-border">
               {profile.photo_url ? <img src={profile.photo_url} alt="" className="h-full w-full object-cover" /> : profile.display_name?.charAt(0) || profile.email?.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-zinc-900 truncate">{profile.display_name || 'User'}</p>
-              <p className="text-xs text-zinc-500 capitalize truncate">{profile.role}</p>
+              <p className="text-sm font-semibold text-foreground truncate">{profile.display_name || 'User'}</p>
+              <p className="text-xs text-muted-foreground capitalize truncate">{profile.role}</p>
             </div>
           </div>
           <button 
             onClick={handleSignOut}
-            className="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 transition-colors"
+            className="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           >
             <LogOut className="h-4 w-4" />
             Log Out
@@ -475,25 +475,25 @@ export default function Dashboard() {
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-zinc-900">Welcome back, {profile.display_name || profile.email}</h1>
+              <h1 className="text-2xl font-bold text-foreground">Welcome back, {profile.display_name || profile.email}</h1>
               {profile.role === 'admin' && (
-                <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600 border border-zinc-200 uppercase tracking-wider">Admin</span>
+                <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground border border-border uppercase tracking-wider">Admin</span>
               )}
             </div>
-            <p className="text-zinc-500 text-sm mt-0.5">Manage your projects and network connections.</p>
+            <p className="text-muted-foreground text-sm mt-0.5">Manage your projects and network connections.</p>
           </div>
           <div className="flex items-center gap-2">
             <div className="relative hidden lg:block">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input 
                 type="text" 
                 placeholder="Search..." 
-                className="h-10 w-64 rounded-lg border border-zinc-200 bg-white pl-9 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-zinc-300 transition-all"
+                className="h-10 w-64 rounded-lg border border-border bg-white pl-9 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-zinc-300 transition-all"
               />
             </div>
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
-              className="relative rounded-lg bg-white p-2 border border-zinc-200 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
+              className="relative rounded-lg bg-white p-2 border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             >
               <Bell className="h-5 w-5" />
               {notifications.some(n => !n.read) && (
@@ -502,29 +502,29 @@ export default function Dashboard() {
             </button>
             
             {showNotifications && (
-              <div className="absolute top-20 right-8 w-80 bg-white rounded-xl  border border-zinc-200 z-50 overflow-hidden">
-                <div className="p-3 border-b border-zinc-100 flex items-center justify-between bg-zinc-50">
-                  <span className="text-xs font-bold text-zinc-900 uppercase tracking-wider">Notifications</span>
-                  <button onClick={() => setShowNotifications(false)} className="text-zinc-400 hover:text-zinc-900">
+              <div className="absolute top-20 right-8 w-80 bg-white rounded-xl  border border-border z-50 overflow-hidden">
+                <div className="p-3 border-b border-border flex items-center justify-between bg-background">
+                  <span className="text-xs font-bold text-foreground uppercase tracking-wider">Notifications</span>
+                  <button onClick={() => setShowNotifications(false)} className="text-muted-foreground hover:text-foreground">
                     <X className="h-4 w-4" />
                   </button>
                 </div>
                 <div className="max-h-96 overflow-y-auto">
                   {notifications.length === 0 ? (
-                    <div className="p-6 text-center text-zinc-400 text-xs">No notifications.</div>
+                    <div className="p-6 text-center text-muted-foreground text-xs">No notifications.</div>
                   ) : (
                     notifications.map(n => (
                       <div 
                         key={n.id} 
                         onClick={() => markNotificationRead(n.id)}
                         className={cn(
-                          "p-4 border-b border-zinc-50 cursor-pointer hover:bg-zinc-100 transition-colors",
+                          "p-4 border-b border-zinc-50 cursor-pointer hover:bg-muted transition-colors",
                           !n.read && "bg-blue-50/50"
                         )}
                       >
-                        <p className="text-sm font-semibold text-zinc-900">{n.title}</p>
-                        <p className="text-xs text-zinc-500 mt-0.5">{n.message}</p>
-                        <p className="text-xs text-zinc-400 mt-2">{new Date(n.created_at).toLocaleString()}</p>
+                        <p className="text-sm font-semibold text-foreground">{n.title}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{n.message}</p>
+                        <p className="text-xs text-muted-foreground mt-2">{new Date(n.created_at).toLocaleString()}</p>
                       </div>
                     ))
                   )}
@@ -533,7 +533,7 @@ export default function Dashboard() {
             )}
             {profile.role === 'client' && (
               <Link to="/brief-builder">
-                <Button className="h-10 px-4 rounded-lg bg-zinc-900 text-white hover:bg-zinc-800 text-sm font-medium">
+                <Button className="h-10 px-4 rounded-lg bg-primary text-primary-foreground hover:bg-zinc-800 text-sm font-medium">
                   <Plus className="h-4 w-4 mr-2" /> New Project
                 </Button>
               </Link>
@@ -542,20 +542,20 @@ export default function Dashboard() {
         </header>
 
         {profile?.role === 'provider' && !profile.onboarding_completed && onboardingDismissed && (
-          <div className="mb-8 p-6 bg-zinc-50 border border-zinc-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="mb-8 p-6 bg-background border border-border rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4 text-center sm:text-left">
-              <div className="h-10 w-10 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600 shrink-0 border border-zinc-200">
+              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground shrink-0 border border-border">
                 <AlertCircle className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-zinc-900">Finish your profile</h3>
-                <p className="text-zinc-500 text-sm">Complete your profile to start receiving project invitations.</p>
+                <h3 className="text-base font-bold text-foreground">Finish your profile</h3>
+                <p className="text-muted-foreground text-sm">Complete your profile to start receiving project invitations.</p>
               </div>
             </div>
             <Button 
               onClick={handleResumeOnboarding}
               variant="outline"
-              className="rounded-lg h-10 px-6 font-semibold text-sm border-zinc-200 hover:bg-zinc-100"
+              className="rounded-lg h-10 px-6 font-semibold text-sm border-border hover:bg-muted"
             >
               Resume Onboarding
             </Button>
@@ -570,43 +570,43 @@ export default function Dashboard() {
                 profile.role === 'admin' && { label: 'Total Providers', value: providers.length, icon: Users, color: 'zinc' },
                 { label: 'Account Status', value: profile.is_verified ? 'Verified' : 'Pending', icon: ShieldCheck, color: profile.is_verified ? 'zinc' : 'zinc' }
               ].filter(Boolean).map((stat: any, i) => (
-                <Card key={i} className="p-6 border border-zinc-200  bg-white rounded-xl">
+                <Card key={i} className="p-6 border border-border  bg-white rounded-xl">
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="h-10 w-10 rounded-lg bg-zinc-50 flex items-center justify-center text-zinc-600 border border-zinc-100">
+                    <div className="h-10 w-10 rounded-lg bg-background flex items-center justify-center text-muted-foreground border border-border">
                       <stat.icon className="h-5 w-5" />
                     </div>
-                    <h3 className="text-sm font-medium text-zinc-500">{stat.label}</h3>
+                    <h3 className="text-sm font-medium text-muted-foreground">{stat.label}</h3>
                   </div>
-                  <p className="text-3xl font-bold text-zinc-900">{stat.value}</p>
+                  <p className="text-3xl font-bold text-foreground">{stat.value}</p>
                 </Card>
               ))}
             </div>
 
             <div className="grid grid-cols-1 gap-6">
-              <Card className="p-0 overflow-hidden border border-zinc-200  bg-white rounded-xl">
-                <div className="border-b border-zinc-100 bg-white px-6 py-4 flex items-center justify-between">
-                  <h3 className="text-base font-bold text-zinc-900">Recent Activity</h3>
-                  <Button variant="ghost" size="sm" className="text-xs font-medium text-zinc-500 hover:text-zinc-900">View All</Button>
+              <Card className="p-0 overflow-hidden border border-border  bg-white rounded-xl">
+                <div className="border-b border-border bg-white px-6 py-4 flex items-center justify-between">
+                  <h3 className="text-base font-bold text-foreground">Recent Activity</h3>
+                  <Button variant="ghost" size="sm" className="text-xs font-medium text-muted-foreground hover:text-foreground">View All</Button>
                 </div>
                 <div className="p-6 space-y-6">
                   {projects.slice(0, 5).map((project, i) => (
                     <div key={i} className="flex gap-4 items-start">
-                      <div className="h-8 w-8 rounded-full bg-zinc-50 flex items-center justify-center shrink-0 border border-zinc-100 text-zinc-400">
+                      <div className="h-8 w-8 rounded-full bg-background flex items-center justify-center shrink-0 border border-border text-muted-foreground">
                         <Plus className="h-4 w-4" />
                       </div>
                       <div className="flex-1 border-b border-zinc-50 pb-6 last:border-0 last:pb-0">
                         <div className="flex items-center justify-between mb-1">
-                          <p className="text-sm font-semibold text-zinc-900">
-                            Project: <span className="text-zinc-500 font-medium">{project.title}</span>
+                          <p className="text-sm font-semibold text-foreground">
+                            Project: <span className="text-muted-foreground font-medium">{project.title}</span>
                           </p>
                           <span className={cn(
                             "text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border",
-                            project.status === 'active' ? "bg-zinc-50 text-zinc-600 border-zinc-200" : "bg-zinc-50 text-zinc-400 border-zinc-100"
+                            project.status === 'active' ? "bg-background text-muted-foreground border-border" : "bg-background text-muted-foreground border-border"
                           )}>
                             {project.status}
                           </span>
                         </div>
-                        <p className="text-xs text-zinc-400 flex items-center gap-1.5">
+                        <p className="text-xs text-muted-foreground flex items-center gap-1.5">
                           <Clock className="h-3 w-3" />
                           {project.created_at ? new Date(project.created_at).toLocaleString() : 'Just now'}
                         </p>
@@ -615,7 +615,7 @@ export default function Dashboard() {
                   ))}
                   {projects.length === 0 && (
                     <div className="text-center py-12">
-                      <p className="text-zinc-400 text-sm">No recent activity.</p>
+                      <p className="text-muted-foreground text-sm">No recent activity.</p>
                     </div>
                   )}
                 </div>
@@ -628,12 +628,12 @@ export default function Dashboard() {
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-xl font-bold text-zinc-900">Projects</h2>
-                <p className="text-zinc-500 text-sm mt-0.5">Track and manage your project initiatives.</p>
+                <h2 className="text-xl font-bold text-foreground">Projects</h2>
+                <p className="text-muted-foreground text-sm mt-0.5">Track and manage your project initiatives.</p>
               </div>
               {profile.role === 'client' && (
                 <Link to="/brief-builder">
-                  <Button className="h-10 px-4 rounded-lg bg-zinc-900 text-white hover:bg-zinc-800 text-sm font-medium">
+                  <Button className="h-10 px-4 rounded-lg bg-primary text-primary-foreground hover:bg-zinc-800 text-sm font-medium">
                     <Plus className="h-4 w-4 mr-2" />
                     New Project
                   </Button>
@@ -647,62 +647,62 @@ export default function Dashboard() {
                 { label: 'In Review', value: projects.filter(p => p.status === 'in-review').length, icon: Clock, color: 'zinc' },
                 { label: 'Completed', value: projects.filter(p => p.status === 'completed').length, icon: CheckCircle2, color: 'zinc' },
               ].map((stat, i) => (
-                <Card key={i} className="p-6 border border-zinc-200  bg-white rounded-xl">
+                <Card key={i} className="p-6 border border-border  bg-white rounded-xl">
                   <div className="flex items-center gap-3 mb-3">
-                    <stat.icon className="h-4 w-4 text-zinc-400" />
-                    <h3 className="text-sm font-medium text-zinc-500">{stat.label}</h3>
+                    <stat.icon className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="text-sm font-medium text-muted-foreground">{stat.label}</h3>
                   </div>
-                  <p className="text-2xl font-bold text-zinc-900">{stat.value}</p>
+                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
                 </Card>
               ))}
             </div>
 
-            <Card className="p-0 overflow-hidden border border-zinc-200  bg-white rounded-xl">
+            <Card className="p-0 overflow-hidden border border-border  bg-white rounded-xl">
               <div className="divide-y divide-zinc-100">
                 {projects.length === 0 ? (
                   <div className="px-6 py-16 text-center">
-                    <div className="h-12 w-12 rounded-full bg-zinc-50 flex items-center justify-center mx-auto mb-4 border border-zinc-100 text-zinc-400">
+                    <div className="h-12 w-12 rounded-full bg-background flex items-center justify-center mx-auto mb-4 border border-border text-muted-foreground">
                       <Briefcase className="h-6 w-6" />
                     </div>
-                    <h4 className="text-base font-bold text-zinc-900">No projects yet</h4>
-                    <p className="text-zinc-500 text-sm mt-1 max-w-xs mx-auto">
+                    <h4 className="text-base font-bold text-foreground">No projects yet</h4>
+                    <p className="text-muted-foreground text-sm mt-1 max-w-xs mx-auto">
                       {profile.role === 'client' ? 'Start your first project to begin your expansion.' : 'Projects will appear here once you are assigned.'}
                     </p>
                     {profile.role === 'client' && (
                       <Link to="/brief-builder" className="inline-block mt-6">
-                        <Button variant="outline" className="h-10 px-6 rounded-lg text-sm font-medium border-zinc-200 hover:bg-zinc-100">Create a Project</Button>
+                        <Button variant="outline" className="h-10 px-6 rounded-lg text-sm font-medium border-border hover:bg-muted">Create a Project</Button>
                       </Link>
                     )}
                   </div>
                 ) : (
                   projects.map((project) => (
-                    <div key={project.id} className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-5 hover:bg-zinc-100/50 transition-colors">
+                    <div key={project.id} className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-5 hover:bg-muted/50 transition-colors">
                       <div className="flex items-center gap-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-100 text-zinc-600 border border-zinc-200">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-muted-foreground border border-border">
                           <Briefcase className="h-5 w-5" />
                         </div>
                         <div>
-                          <div className="font-bold text-zinc-900 text-base">{project.title}</div>
+                          <div className="font-bold text-foreground text-base">{project.title}</div>
                           <div className="flex items-center gap-3 mt-0.5">
-                            <span className="text-xs text-zinc-500 flex items-center gap-1.5">
+                            <span className="text-xs text-muted-foreground flex items-center gap-1.5">
                               <Clock className="h-3.3 w-3.3" />
                               {project.created_at ? new Date(project.created_at).toLocaleDateString() : 'Recent'}
                             </span>
                             <span className="h-1 w-1 rounded-full bg-zinc-300" />
-                            <span className="text-xs font-medium text-zinc-600">{project.value || 'Budget TBD'}</span>
+                            <span className="text-xs font-medium text-muted-foreground">{project.value || 'Budget TBD'}</span>
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-4 mt-4 sm:mt-0">
                         <div className={cn(
                           "rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider border",
-                          project.status === 'active' ? "bg-zinc-50 text-zinc-600 border-zinc-200" : 
-                          project.status === 'in-review' ? "bg-zinc-50 text-zinc-500 border-zinc-200" : "bg-zinc-50 text-zinc-400 border-zinc-100"
+                          project.status === 'active' ? "bg-background text-muted-foreground border-border" : 
+                          project.status === 'in-review' ? "bg-background text-muted-foreground border-border" : "bg-background text-muted-foreground border-border"
                         )}>
                           {project.status.replace('-', ' ')}
                         </div>
                         <Link to={`/project/${project.id}`}>
-                          <Button variant="outline" className="h-9 px-4 rounded-lg text-xs font-medium border-zinc-200 hover:bg-zinc-100">
+                          <Button variant="outline" className="h-9 px-4 rounded-lg text-xs font-medium border-border hover:bg-muted">
                             View Details
                           </Button>
                         </Link>
@@ -718,8 +718,8 @@ export default function Dashboard() {
         {activeTab === 'messages' && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-bold text-zinc-900">Messages</h2>
-              <p className="text-zinc-500 text-sm mt-0.5">Communicate with your network partners.</p>
+              <h2 className="text-xl font-bold text-foreground">Messages</h2>
+              <p className="text-muted-foreground text-sm mt-0.5">Communicate with your network partners.</p>
             </div>
             <MessagingSystem />
           </div>
@@ -732,11 +732,11 @@ export default function Dashboard() {
         {activeTab === 'settings' && (
           <div className="max-w-3xl space-y-6">
             <div>
-              <h2 className="text-xl font-bold text-zinc-900">Settings</h2>
-              <p className="text-zinc-500 text-sm mt-0.5">Manage your profile and account preferences.</p>
+              <h2 className="text-xl font-bold text-foreground">Settings</h2>
+              <p className="text-muted-foreground text-sm mt-0.5">Manage your profile and account preferences.</p>
             </div>
 
-            <Card className="p-6 border border-zinc-200  bg-white rounded-xl">
+            <Card className="p-6 border border-border  bg-white rounded-xl">
               <form onSubmit={handleUpdateSettings} className="space-y-6">
                 <div className="grid gap-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -746,7 +746,7 @@ export default function Dashboard() {
                         type="text" 
                         value={settingsForm.displayName}
                         onChange={(e) => setSettingsForm({ ...settingsForm, displayName: e.target.value })}
-                        className="h-10 rounded-lg bg-zinc-50 border-zinc-200 focus:ring-1 focus:ring-zinc-300 text-sm"
+                        className="h-10 rounded-lg bg-background border-border focus:ring-1 focus:ring-zinc-300 text-sm"
                       />
                     </div>
                     <div className="space-y-2">
@@ -755,7 +755,7 @@ export default function Dashboard() {
                         type="email" 
                         disabled
                         value={profile.email}
-                        className="h-10 rounded-lg bg-zinc-50 border-zinc-200 text-zinc-500 text-sm opacity-70"
+                        className="h-10 rounded-lg bg-background border-border text-muted-foreground text-sm opacity-70"
                       />
                     </div>
                   </div>
@@ -767,7 +767,7 @@ export default function Dashboard() {
                         type="text" 
                         value={settingsForm.companyName}
                         onChange={(e) => setSettingsForm({ ...settingsForm, companyName: e.target.value })}
-                        className="h-10 rounded-lg bg-zinc-50 border-zinc-200 focus:ring-1 focus:ring-zinc-300 text-sm"
+                        className="h-10 rounded-lg bg-background border-border focus:ring-1 focus:ring-zinc-300 text-sm"
                       />
                     </div>
                     <div className="space-y-2">
@@ -775,7 +775,7 @@ export default function Dashboard() {
                       <select 
                         value={settingsForm.industry}
                         onChange={(e) => setSettingsForm({ ...settingsForm, industry: e.target.value })}
-                        className="w-full h-10 rounded-lg bg-zinc-50 border-zinc-200 px-3 text-sm focus:ring-1 focus:ring-zinc-300 appearance-none border"
+                        className="w-full h-10 rounded-lg bg-background border-border px-3 text-sm focus:ring-1 focus:ring-zinc-300 appearance-none border"
                       >
                         <option value="">Select Industry</option>
                         <option value="Logistics & Supply Chain">Logistics & Supply Chain</option>
@@ -791,15 +791,15 @@ export default function Dashboard() {
                     <textarea 
                       value={settingsForm.bio}
                       onChange={(e) => setSettingsForm({ ...settingsForm, bio: e.target.value })}
-                      className="w-full min-h-[100px] rounded-lg bg-zinc-50 border-zinc-200 border p-3 text-sm focus:ring-1 focus:ring-zinc-300 focus:outline-none"
+                      className="w-full min-h-[100px] rounded-lg bg-background border-border border p-3 text-sm focus:ring-1 focus:ring-zinc-300 focus:outline-none"
                       placeholder="Tell us about your business..."
                     />
                   </div>
                 </div>
 
-                <div className="pt-6 border-t border-zinc-100 flex justify-end gap-3">
-                  <Button type="button" variant="outline" className="h-10 px-4 rounded-lg text-sm font-medium border-zinc-200 hover:bg-zinc-100">Cancel</Button>
-                  <Button type="submit" className="h-10 px-6 rounded-lg bg-zinc-900 text-white text-sm font-medium hover:bg-zinc-800">Save Changes</Button>
+                <div className="pt-6 border-t border-border flex justify-end gap-3">
+                  <Button type="button" variant="outline" className="h-10 px-4 rounded-lg text-sm font-medium border-border hover:bg-muted">Cancel</Button>
+                  <Button type="submit" className="h-10 px-6 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-zinc-800">Save Changes</Button>
                 </div>
               </form>
             </Card>
@@ -829,37 +829,37 @@ export default function Dashboard() {
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-xl font-bold text-zinc-900">Providers</h2>
-                <p className="text-zinc-500 text-sm mt-0.5">Manage verified platform partners.</p>
+                <h2 className="text-xl font-bold text-foreground">Providers</h2>
+                <p className="text-muted-foreground text-sm mt-0.5">Manage verified platform partners.</p>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" className="h-10 px-4 rounded-lg text-sm font-medium border-zinc-200 hover:bg-zinc-100">Filter</Button>
-                <Button className="h-10 px-4 rounded-lg bg-zinc-900 text-white text-sm font-medium hover:bg-zinc-800">Search</Button>
+                <Button variant="outline" className="h-10 px-4 rounded-lg text-sm font-medium border-border hover:bg-muted">Filter</Button>
+                <Button className="h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-zinc-800">Search</Button>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {providers.length === 0 ? (
-                <div className="col-span-full py-16 text-center bg-white rounded-xl border border-zinc-200">
-                  <div className="h-12 w-12 rounded-full bg-zinc-50 flex items-center justify-center mx-auto mb-4 border border-zinc-100 text-zinc-400">
+                <div className="col-span-full py-16 text-center bg-white rounded-xl border border-border">
+                  <div className="h-12 w-12 rounded-full bg-background flex items-center justify-center mx-auto mb-4 border border-border text-muted-foreground">
                     <Users className="h-6 w-6" />
                   </div>
-                  <h4 className="text-base font-bold text-zinc-900">No providers found</h4>
-                  <p className="text-zinc-500 text-sm mt-1">Verified partners will appear here.</p>
+                  <h4 className="text-base font-bold text-foreground">No providers found</h4>
+                  <p className="text-muted-foreground text-sm mt-1">Verified partners will appear here.</p>
                 </div>
               ) : (
                 providers.map((provider) => (
-                  <Card key={provider.id} className="p-6 border border-zinc-200  bg-white rounded-xl flex flex-col">
+                  <Card key={provider.id} className="p-6 border border-border  bg-white rounded-xl flex flex-col">
                     <div className="flex items-start gap-4 mb-6">
-                      <div className="h-12 w-12 rounded-full bg-zinc-50 flex items-center justify-center text-zinc-400 shrink-0 overflow-hidden border border-zinc-200">
+                      <div className="h-12 w-12 rounded-full bg-background flex items-center justify-center text-muted-foreground shrink-0 overflow-hidden border border-border">
                         {provider.photo_url ? <img src={provider.photo_url} alt="" className="h-full w-full object-cover" /> : <Users className="h-6 w-6" />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 font-bold text-zinc-900 text-base truncate">
+                        <div className="flex items-center gap-1.5 font-bold text-foreground text-base truncate">
                           {provider.display_name || provider.email}
                           {provider.is_verified && <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />}
                         </div>
-                        <div className="text-sm text-zinc-500 truncate mt-0.5">{provider.industry || 'General Operations'}</div>
+                        <div className="text-sm text-muted-foreground truncate mt-0.5">{provider.industry || 'General Operations'}</div>
                       </div>
                       <div className="flex items-center gap-1 text-sm font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100 shrink-0">
                         ★ {provider.rating || '5.0'}
@@ -867,22 +867,22 @@ export default function Dashboard() {
                     </div>
 
                     <div className="mt-auto space-y-4">
-                      <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 border border-zinc-100">
-                        <span className="text-xs font-semibold text-zinc-600 uppercase tracking-wider">Completed Projects</span>
-                        <span className="text-sm font-bold text-zinc-900">{provider.projectsCompleted || 0}</span>
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-background border border-border">
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Completed Projects</span>
+                        <span className="text-sm font-bold text-foreground">{provider.projectsCompleted || 0}</span>
                       </div>
                       
                       <div className="flex gap-2">
                         <Button 
                           variant="outline" 
                           onClick={() => handleViewProfile(provider)}
-                          className="flex-1 h-9 rounded-lg border-zinc-200 text-xs font-medium hover:bg-zinc-100"
+                          className="flex-1 h-9 rounded-lg border-border text-xs font-medium hover:bg-muted"
                         >
                           View Profile
                         </Button>
                         <Button 
                           onClick={() => setSelectedProviderForMessage(provider)}
-                          className="flex-1 h-9 rounded-lg bg-zinc-900 text-white text-xs font-medium hover:bg-zinc-800"
+                          className="flex-1 h-9 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-zinc-800"
                         >
                           Message
                         </Button>
@@ -899,12 +899,12 @@ export default function Dashboard() {
           <div className="space-y-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-xl font-bold text-zinc-900">Admin Panel</h2>
-                <p className="text-zinc-500 text-sm mt-0.5">Manage users, projects, and platform settings.</p>
+                <h2 className="text-xl font-bold text-foreground">Admin Panel</h2>
+                <p className="text-muted-foreground text-sm mt-0.5">Manage users, projects, and platform settings.</p>
               </div>
               <Button 
                 onClick={() => setIsCreatingProject(true)} 
-                className="h-10 px-4 rounded-lg bg-zinc-900 text-white text-sm font-medium hover:bg-zinc-800"
+                className="h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-zinc-800"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 New Project
@@ -912,9 +912,9 @@ export default function Dashboard() {
             </div>
 
             {isCreatingProject && (
-              <Card className="p-6 border border-zinc-200  bg-white rounded-xl relative">
+              <Card className="p-6 border border-border  bg-white rounded-xl relative">
                 <div className="absolute top-4 right-4">
-                  <Button variant="ghost" size="sm" className="text-zinc-500 hover:text-zinc-900" onClick={() => {
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" onClick={() => {
                     setIsCreatingProject(false);
                     setEditingProject(null);
                     setNewProject({ title: '', needs: '', value: '', status: 'active' });
@@ -924,7 +924,7 @@ export default function Dashboard() {
                 </div>
                 <form onSubmit={handleCreateProject} className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-bold text-zinc-900">{editingProject ? 'Edit Project' : 'Create New Project'}</h3>
+                    <h3 className="text-lg font-bold text-foreground">{editingProject ? 'Edit Project' : 'Create New Project'}</h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
@@ -934,7 +934,7 @@ export default function Dashboard() {
                         value={newProject.title}
                         onChange={(e) => setNewProject({ ...newProject, title: e.target.value })}
                         placeholder="e.g. System Integration"
-                        className="h-10 rounded-lg bg-zinc-50 border-zinc-200 focus:ring-1 focus:ring-zinc-300 text-sm"
+                        className="h-10 rounded-lg bg-background border-border focus:ring-1 focus:ring-zinc-300 text-sm"
                       />
                     </div>
                     <div className="space-y-2">
@@ -944,7 +944,7 @@ export default function Dashboard() {
                         value={newProject.value}
                         onChange={(e) => setNewProject({ ...newProject, value: e.target.value })}
                         placeholder="e.g. $10,000"
-                        className="h-10 rounded-lg bg-zinc-50 border-zinc-200 focus:ring-1 focus:ring-zinc-300 text-sm"
+                        className="h-10 rounded-lg bg-background border-border focus:ring-1 focus:ring-zinc-300 text-sm"
                       />
                     </div>
                   </div>
@@ -952,14 +952,14 @@ export default function Dashboard() {
                     <label className="text-xs font-semibold text-zinc-700 uppercase tracking-wider">Project Description</label>
                     <textarea 
                       required
-                      className="w-full min-h-[150px] rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-sm focus:outline-none focus:ring-1 focus:ring-zinc-300"
+                      className="w-full min-h-[150px] rounded-lg border border-border bg-background p-3 text-sm focus:outline-none focus:ring-1 focus:ring-zinc-300"
                       value={newProject.needs}
                       onChange={(e) => setNewProject({ ...newProject, needs: e.target.value })}
                       placeholder="Describe the requirements and scope..."
                     />
                   </div>
                   <div className="flex justify-end">
-                    <Button type="submit" className="h-10 px-6 rounded-lg bg-zinc-900 text-white text-sm font-medium hover:bg-zinc-800">
+                    <Button type="submit" className="h-10 px-6 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-zinc-800">
                       {editingProject ? 'Save Changes' : 'Create Project'}
                     </Button>
                   </div>
@@ -982,50 +982,50 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between mb-8">
                     <div className={cn(
                       "h-16 w-16 rounded-2xl flex items-center justify-center transition-all duration-500 ",
-                      stat.color === 'zinc' ? "bg-zinc-50 text-zinc-900 group-hover:bg-zinc-900 group-hover:text-white" :
-                      stat.color === 'amber' ? "bg-amber-100 text-amber-600 group-hover:bg-amber-600 group-hover:text-white" :
-                      "bg-emerald-100 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white"
+                      stat.color === 'zinc' ? "bg-background text-foreground group-hover:bg-primary group-hover:text-primary-foreground" :
+                      stat.color === 'amber' ? "bg-amber-100 text-amber-600 group-hover:bg-amber-600 group-hover:text-primary-foreground" :
+                      "bg-emerald-100 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-primary-foreground"
                     )}>
                       <stat.icon className="h-8 w-8" />
                     </div>
                   </div>
-                  <div className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-2">{stat.label}</div>
+                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">{stat.label}</div>
                   <div className={cn(
                     "text-6xl font-bold tracking-tighter",
                     stat.color === 'amber' ? "text-amber-600" : 
-                    stat.color === 'emerald' ? "text-emerald-600" : "text-zinc-900"
+                    stat.color === 'emerald' ? "text-emerald-600" : "text-foreground"
                   )}>{stat.value}</div>
                 </Card>
               ))}
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
-              <Card className="p-0 overflow-hidden border-none  bg-white rounded-xl border border-zinc-200">
-                <div className="border-b border-zinc-100 bg-white px-12 py-10 flex items-center justify-between">
+              <Card className="p-0 overflow-hidden border-none  bg-white rounded-xl border border-border">
+                <div className="border-b border-border bg-white px-12 py-10 flex items-center justify-between">
                   <div>
-                    <h3 className="text-3xl font-bold text-zinc-900 tracking-tighter">Vetting Queue</h3>
-                    <p className="text-sm text-zinc-500 mt-2">{vettingApps.length} pending requests</p>
+                    <h3 className="text-3xl font-bold text-foreground tracking-tighter">Vetting Queue</h3>
+                    <p className="text-sm text-muted-foreground mt-2">{vettingApps.length} pending requests</p>
                   </div>
                 </div>
                 <div className="divide-y divide-zinc-50">
                   {vettingApps.length === 0 ? (
                     <div className="px-12 py-32 text-center">
-                      <div className="h-24 w-24 rounded-full bg-zinc-50 flex items-center justify-center mx-auto mb-8 ">
+                      <div className="h-24 w-24 rounded-full bg-background flex items-center justify-center mx-auto mb-8 ">
                         <ShieldCheck className="h-12 w-12 text-zinc-200" />
                       </div>
-                      <p className="text-zinc-400 font-bold uppercase tracking-widest text-sm italic">Queue is currently empty.</p>
+                      <p className="text-muted-foreground font-bold uppercase tracking-widest text-sm italic">Queue is currently empty.</p>
                     </div>
                   ) : (
                     vettingApps.map((app) => (
-                      <div key={app.id} className="flex items-center justify-between px-12 py-10 hover:bg-zinc-100/50 transition-all group">
+                      <div key={app.id} className="flex items-center justify-between px-12 py-10 hover:bg-muted/50 transition-all group">
                         <div className="flex items-center gap-8">
-                          <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-zinc-900 text-white font-bold text-3xl  transition-transform group-hover:scale-110 group-hover:rotate-3">
+                          <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-3xl  transition-transform group-hover:scale-110 group-hover:rotate-3">
                             {app.entity_name ? app.entity_name.charAt(0) : '?'}
                           </div>
                           <div>
-                            <div className="font-bold text-zinc-900 text-2xl tracking-tighter mb-1">{app.entity_name}</div>
-                            <div className="text-xs text-zinc-400 font-bold uppercase tracking-widest flex items-center gap-2">
-                              <span className="bg-zinc-100 px-2 py-0.5 rounded">EIN: {app.ein}</span>
+                            <div className="font-bold text-foreground text-2xl tracking-tighter mb-1">{app.entity_name}</div>
+                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest flex items-center gap-2">
+                              <span className="bg-muted px-2 py-0.5 rounded">EIN: {app.ein}</span>
                             </div>
                           </div>
                         </div>
@@ -1040,7 +1040,7 @@ export default function Dashboard() {
                           <div className="flex gap-4">
                             {app.status === 'pending' && (
                               <>
-                                <Button className="h-14 px-8 rounded-2xl font-bold text-xs uppercase tracking-widest bg-zinc-900 text-white  hover:scale-105 transition-all" onClick={() => handleApproveVetting(app)}>Approve</Button>
+                                <Button className="h-14 px-8 rounded-2xl font-bold text-xs uppercase tracking-widest bg-primary text-primary-foreground  hover:scale-105 transition-all" onClick={() => handleApproveVetting(app)}>Approve</Button>
                                 <Button variant="ghost" className="h-14 px-8 rounded-2xl font-bold text-xs uppercase tracking-widest text-rose-600 hover:bg-rose-50 border border-rose-100 active:scale-95" onClick={() => handleRejectVetting(app)}>Reject</Button>
                               </>
                             )}
@@ -1052,23 +1052,23 @@ export default function Dashboard() {
                 </div>
               </Card>
 
-              <Card className="p-0 overflow-hidden border-none  bg-white rounded-xl border border-zinc-200">
-                <div className="border-b border-zinc-100 bg-white px-12 py-10 flex items-center justify-between">
+              <Card className="p-0 overflow-hidden border-none  bg-white rounded-xl border border-border">
+                <div className="border-b border-border bg-white px-12 py-10 flex items-center justify-between">
                   <div>
-                    <h3 className="text-3xl font-bold text-zinc-900 tracking-tighter">User Directory</h3>
-                    <p className="text-sm text-zinc-500 mt-2">{allUsers.length} Total Users</p>
+                    <h3 className="text-3xl font-bold text-foreground tracking-tighter">User Directory</h3>
+                    <p className="text-sm text-muted-foreground mt-2">{allUsers.length} Total Users</p>
                   </div>
                 </div>
                 <div className="divide-y divide-zinc-50">
                   {allUsers.map((user) => (
-                    <div key={user.id} className="flex items-center justify-between px-12 py-10 hover:bg-zinc-100/50 transition-all group">
+                    <div key={user.id} className="flex items-center justify-between px-12 py-10 hover:bg-muted/50 transition-all group">
                       <div className="flex items-center gap-8">
-                        <div className="h-20 w-20 rounded-lg bg-zinc-50 flex items-center justify-center text-zinc-400 font-bold overflow-hidden  group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
+                        <div className="h-20 w-20 rounded-lg bg-background flex items-center justify-center text-muted-foreground font-bold overflow-hidden  group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
                           {user.photo_url ? <img src={user.photo_url} alt="" className="h-full w-full object-cover" /> : <Users className="h-10 w-10" />}
                         </div>
                         <div>
-                          <div className="font-bold text-zinc-900 text-2xl tracking-tighter mb-1">{user.display_name || user.email}</div>
-                          <div className="text-xs text-zinc-400 font-bold uppercase tracking-widest">{user.email}</div>
+                          <div className="font-bold text-foreground text-2xl tracking-tighter mb-1">{user.display_name || user.email}</div>
+                          <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">{user.email}</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-6">
@@ -1076,7 +1076,7 @@ export default function Dashboard() {
                           <select 
                             value={user.role}
                             onChange={(e) => handleUpdateUserRole(user.id, e.target.value)}
-                            className="h-14 rounded-2xl border-none bg-zinc-100 px-8 text-xs font-bold uppercase tracking-wider focus:ring-2 focus:ring-zinc-900/10 appearance-none cursor-pointer pr-12"
+                            className="h-14 rounded-2xl border-none bg-muted px-8 text-xs font-bold uppercase tracking-wider focus:ring-2 focus:ring-zinc-900/10 appearance-none cursor-pointer pr-12"
                           >
                             <option value="client">Client</option>
                             <option value="provider">Provider</option>
@@ -1092,7 +1092,7 @@ export default function Dashboard() {
                             "flex items-center gap-3 text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-2xl transition-all ",
                             user.is_verified 
                               ? "text-emerald-600 bg-emerald-50 border border-emerald-100 hover:bg-emerald-100" 
-                              : "text-zinc-400 bg-zinc-100 border border-zinc-200 hover:bg-zinc-200"
+                              : "text-muted-foreground bg-muted border border-border hover:bg-border"
                           )}
                         >
                           <ShieldCheck className="h-4 w-4" />
@@ -1112,40 +1112,40 @@ export default function Dashboard() {
               </Card>
             </div>
 
-            <Card className="p-0 overflow-hidden border-none  bg-white rounded-xl border border-zinc-200">
-              <div className="border-b border-zinc-100 bg-white px-12 py-10 flex items-center justify-between">
+            <Card className="p-0 overflow-hidden border-none  bg-white rounded-xl border border-border">
+              <div className="border-b border-border bg-white px-12 py-10 flex items-center justify-between">
                 <div>
-                  <h3 className="text-3xl font-bold text-zinc-900 tracking-tighter">All Projects</h3>
-                  <p className="text-sm text-zinc-500 mt-2">{projects.length} Active Projects</p>
+                  <h3 className="text-3xl font-bold text-foreground tracking-tighter">All Projects</h3>
+                  <p className="text-sm text-muted-foreground mt-2">{projects.length} Active Projects</p>
                 </div>
               </div>
               <div className="divide-y divide-zinc-50">
                 {projects.length === 0 ? (
                   <div className="px-12 py-32 text-center">
-                    <div className="h-24 w-24 rounded-full bg-zinc-50 flex items-center justify-center mx-auto mb-8 ">
+                    <div className="h-24 w-24 rounded-full bg-background flex items-center justify-center mx-auto mb-8 ">
                       <Briefcase className="h-12 w-12 text-zinc-200" />
                     </div>
-                    <p className="text-zinc-400 font-bold uppercase tracking-widest text-sm italic">Registry is currently empty.</p>
+                    <p className="text-muted-foreground font-bold uppercase tracking-widest text-sm italic">Registry is currently empty.</p>
                   </div>
                 ) : (
                   projects.map((project) => (
-                    <div key={project.id} className="flex flex-col md:flex-row md:items-center justify-between px-12 py-10 hover:bg-zinc-100/50 transition-all group">
+                    <div key={project.id} className="flex flex-col md:flex-row md:items-center justify-between px-12 py-10 hover:bg-muted/50 transition-all group">
                       <div className="flex items-center gap-10">
                         <div className={cn(
                           "flex h-20 w-20 items-center justify-center rounded-lg  transition-all duration-500 group-hover:scale-110 group-hover:rotate-3",
-                          project.status === 'active' ? "bg-emerald-500 text-white " : 
-                          project.status === 'in-review' ? "bg-amber-500 text-white " : "bg-zinc-900 text-white shadow-zinc-900/20"
+                          project.status === 'active' ? "bg-emerald-500 text-primary-foreground " : 
+                          project.status === 'in-review' ? "bg-amber-500 text-primary-foreground " : "bg-primary text-primary-foreground shadow-zinc-900/20"
                         )}>
                           <Briefcase className="h-10 w-10" />
                         </div>
                         <div>
-                          <div className="font-bold text-zinc-900 text-3xl tracking-tighter mb-2">{project.title}</div>
+                          <div className="font-bold text-foreground text-3xl tracking-tighter mb-2">{project.title}</div>
                           <div className="flex items-center gap-6">
-                            <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
                               <Clock className="h-3 w-3" />
                               {project.created_at ? new Date(project.created_at).toLocaleDateString() : 'Recent'}
                             </span>
-                            <span className="h-1.5 w-1.5 rounded-full bg-zinc-200" />
+                            <span className="h-1.5 w-1.5 rounded-full bg-border" />
                             <span className="text-xs font-bold text-emerald-600 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-lg">{project.value || 'Valuation Pending'}</span>
                           </div>
                         </div>
@@ -1154,14 +1154,14 @@ export default function Dashboard() {
                         <div className={cn(
                           "rounded-full px-6 py-2 text-xs font-bold uppercase tracking-wider ",
                           project.status === 'active' ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : 
-                          project.status === 'in-review' ? "bg-amber-50 text-amber-600 border border-amber-100" : "bg-zinc-50 text-zinc-600 border border-zinc-100"
+                          project.status === 'in-review' ? "bg-amber-50 text-amber-600 border border-amber-100" : "bg-background text-muted-foreground border border-border"
                         )}>
                           {project.status.replace('-', ' ')}
                         </div>
                         <div className="flex items-center gap-4">
                           <Button 
                             variant="outline" 
-                            className="h-16 w-16 p-0 rounded-lg border-zinc-100 hover:border-zinc-900 hover:bg-zinc-900 hover:text-white transition-all  active:scale-90"
+                            className="h-16 w-16 p-0 rounded-lg border-border hover:border-zinc-900 hover:bg-primary hover:text-primary-foreground transition-all  active:scale-90"
                             onClick={() => startEditingProject(project)}
                           >
                             <Edit className="h-7 w-7" />
@@ -1186,23 +1186,23 @@ export default function Dashboard() {
 
       {/* Modals */}
       {confirmModal.show && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-zinc-900/40 backdrop-blur-sm p-4">
-          <Card className="w-full max-w-md p-6 rounded-xl  border border-zinc-200">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4">
+          <Card className="w-full max-w-md p-6 rounded-xl  border border-border">
             <div className="h-10 w-10 rounded-full bg-rose-50 flex items-center justify-center text-rose-600 mb-4 border border-rose-100">
               <AlertCircle className="h-5 w-5" />
             </div>
-            <h3 className="text-lg font-bold text-zinc-900 mb-2">{confirmModal.title}</h3>
-            <p className="text-zinc-500 text-sm mb-6">{confirmModal.message}</p>
+            <h3 className="text-lg font-bold text-foreground mb-2">{confirmModal.title}</h3>
+            <p className="text-muted-foreground text-sm mb-6">{confirmModal.message}</p>
             <div className="flex gap-3">
               <Button 
                 variant="outline" 
-                className="flex-1 h-10 rounded-lg text-sm font-medium border-zinc-200 hover:bg-zinc-100"
+                className="flex-1 h-10 rounded-lg text-sm font-medium border-border hover:bg-muted"
                 onClick={() => setConfirmModal(prev => ({ ...prev, show: false }))}
               >
                 Cancel
               </Button>
               <Button 
-                className="flex-1 h-10 rounded-lg text-sm font-medium bg-rose-600 hover:bg-rose-700 text-white"
+                className="flex-1 h-10 rounded-lg text-sm font-medium bg-rose-600 hover:bg-rose-700 text-primary-foreground"
                 onClick={confirmModal.onConfirm}
               >
                 Confirm
@@ -1213,15 +1213,15 @@ export default function Dashboard() {
       )}
 
       {errorModal.show && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-zinc-900/40 backdrop-blur-sm p-4">
-          <Card className="w-full max-w-md p-6 rounded-xl  border border-zinc-200">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4">
+          <Card className="w-full max-w-md p-6 rounded-xl  border border-border">
             <div className="h-10 w-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 mb-4 border border-amber-100">
               <AlertCircle className="h-5 w-5" />
             </div>
-            <h3 className="text-lg font-bold text-zinc-900 mb-2">{errorModal.title}</h3>
-            <p className="text-zinc-500 text-sm mb-6">{errorModal.message}</p>
+            <h3 className="text-lg font-bold text-foreground mb-2">{errorModal.title}</h3>
+            <p className="text-muted-foreground text-sm mb-6">{errorModal.message}</p>
             <Button 
-              className="w-full h-10 rounded-lg text-sm font-medium bg-zinc-900 text-white hover:bg-zinc-800"
+              className="w-full h-10 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-zinc-800"
               onClick={() => setErrorModal(prev => ({ ...prev, show: false }))}
             >
               Dismiss
@@ -1232,13 +1232,13 @@ export default function Dashboard() {
 
       {/* Profile Modal */}
       {selectedProviderForProfile && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/40 backdrop-blur-sm p-4 md:p-10">
-          <Card className="w-full max-w-5xl max-h-[90vh] overflow-y-auto p-0 rounded-xl  relative bg-zinc-50 border border-zinc-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4 md:p-10">
+          <Card className="w-full max-w-5xl max-h-[90vh] overflow-y-auto p-0 rounded-xl  relative bg-background border border-border">
             <Button 
               variant="ghost" 
               size="icon" 
               onClick={() => setSelectedProviderForProfile(null)}
-              className="absolute top-4 right-4 z-10 rounded-full bg-white  border border-zinc-200 hover:bg-zinc-100"
+              className="absolute top-4 right-4 z-10 rounded-full bg-white  border border-border hover:bg-muted"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -1265,8 +1265,8 @@ export default function Dashboard() {
 
       {/* Messaging Modal */}
       {selectedProviderForMessage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/40 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-4xl bg-white rounded-xl  border border-zinc-200 overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-4xl bg-white rounded-xl  border border-border overflow-hidden">
             <MessagingSystem 
               recipientId={selectedProviderForMessage.id} 
               recipientName={selectedProviderForMessage.display_name || selectedProviderForMessage.email}

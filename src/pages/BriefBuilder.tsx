@@ -91,7 +91,7 @@ Phase 3: Scale (Months 7-12)`;
   const handleBack = () => setStep(step - 1);
 
   return (
-    <div className="min-h-screen bg-zinc-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl">
         {/* Progress */}
         <div className="mb-12">
@@ -100,20 +100,20 @@ Phase 3: Scale (Months 7-12)`;
               <div key={s.id} className="flex flex-col items-center gap-2">
                 <div className={cn(
                   "flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-bold transition-colors",
-                  i <= step ? "border-zinc-900 bg-zinc-900 text-white" : "border-zinc-200 bg-white text-zinc-400"
+                  i <= step ? "border-zinc-900 bg-primary text-primary-foreground" : "border-border bg-white text-muted-foreground"
                 )}>
                   {i < step ? <CheckCircle2 className="h-5 w-5" /> : i + 1}
                 </div>
                 <span className={cn(
                   "text-xs font-medium uppercase tracking-wider",
-                  i <= step ? "text-zinc-900" : "text-zinc-400"
+                  i <= step ? "text-foreground" : "text-muted-foreground"
                 )}>{s.title}</span>
               </div>
             ))}
           </div>
-          <div className="relative mt-4 h-1 w-full bg-zinc-200 rounded-full">
+          <div className="relative mt-4 h-1 w-full bg-border rounded-full">
             <div 
-              className="absolute h-full bg-zinc-900 rounded-full transition-all duration-300"
+              className="absolute h-full bg-primary rounded-full transition-all duration-300"
               style={{ width: `${(step / (STEPS.length - 1)) * 100}%` }}
             />
           </div>
@@ -122,8 +122,8 @@ Phase 3: Scale (Months 7-12)`;
         <div>
           <div key={step}>
             <Card className="p-8">
-              <h2 className="text-2xl font-bold text-zinc-900">{STEPS[step].title}</h2>
-              <p className="mt-1 text-zinc-600">{STEPS[step].description}</p>
+              <h2 className="text-2xl font-bold text-foreground">{STEPS[step].title}</h2>
+              <p className="mt-1 text-muted-foreground">{STEPS[step].description}</p>
 
               <div className="mt-8 space-y-6">
                 {step === 0 && (
@@ -164,13 +164,13 @@ Phase 3: Scale (Months 7-12)`;
                       value={formData.needs}
                       onChange={(e) => setFormData({ ...formData, needs: e.target.value })}
                     />
-                    <p className="text-xs text-zinc-500">Our platform will transform this into a structured Statement of Work (SOW).</p>
+                    <p className="text-xs text-muted-foreground">Our platform will transform this into a structured Statement of Work (SOW).</p>
                   </div>
                 )}
 
                 {step === 2 && (
                   <div className="space-y-4">
-                    <div className="prose prose-zinc max-w-none rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+                    <div className="prose prose-zinc max-w-none rounded-lg border border-border bg-background p-6">
                       <pre className="whitespace-pre-wrap font-sans text-sm text-zinc-700 leading-relaxed">
                         {sow}
                       </pre>

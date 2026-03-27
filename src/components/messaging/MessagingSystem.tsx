@@ -263,11 +263,11 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
   };
 
   return (
-    <div className="flex h-[600px] w-full max-w-4xl overflow-hidden rounded-xl bg-white shadow-2xl border border-zinc-200">
+    <div className="flex h-[600px] w-full max-w-4xl overflow-hidden rounded-xl bg-white shadow-2xl border border-border">
       {/* Sidebar: Chat List */}
-      <div className="w-80 border-r border-zinc-100 bg-zinc-50 flex flex-col">
-        <div className="p-4 border-b border-zinc-100 bg-white">
-          <h2 className="text-lg font-bold text-zinc-900 flex items-center gap-2">
+      <div className="w-80 border-r border-border bg-background flex flex-col">
+        <div className="p-4 border-b border-border bg-white">
+          <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
             <MessageSquare className="h-5 w-5 text-indigo-600" />
             Messages
           </h2>
@@ -275,9 +275,9 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
         
         <div className="flex-1 overflow-y-auto p-2 space-y-1">
           {loading ? (
-            <div className="p-4 text-center text-zinc-400 text-sm">Loading chats...</div>
+            <div className="p-4 text-center text-muted-foreground text-sm">Loading chats...</div>
           ) : chats.length === 0 ? (
-            <div className="p-4 text-center text-zinc-400 text-sm italic">No conversations yet</div>
+            <div className="p-4 text-center text-muted-foreground text-sm italic">No conversations yet</div>
           ) : (
             chats.map((chat) => (
               <button
@@ -293,10 +293,10 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
                   <User className="h-5 w-5" />
                 </div>
                 <div className="text-left overflow-hidden">
-                  <div className="font-semibold text-zinc-900 truncate">
+                  <div className="font-semibold text-foreground truncate">
                     {chat.otherParticipantName}
                   </div>
-                  <div className="text-xs text-zinc-500 truncate">
+                  <div className="text-xs text-muted-foreground truncate">
                     {chat.last_message || 'No messages yet'}
                   </div>
                 </div>
@@ -311,13 +311,13 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
         {activeChat ? (
           <>
             {/* Chat Header */}
-            <div className="p-4 border-b border-zinc-100 flex items-center justify-between bg-white">
+            <div className="p-4 border-b border-border flex items-center justify-between bg-white">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
                   <User className="h-5 w-5" />
                 </div>
                 <div>
-                  <div className="font-bold text-zinc-900">{activeChat.otherParticipantName}</div>
+                  <div className="font-bold text-foreground">{activeChat.otherParticipantName}</div>
                   <div className="text-xs text-emerald-500 flex items-center gap-1">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                     Online
@@ -337,7 +337,7 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
                 )}
                 {onClose && (
                   <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
-                    <X className="h-5 w-5 text-zinc-400" />
+                    <X className="h-5 w-5 text-muted-foreground" />
                   </Button>
                 )}
               </div>
@@ -346,7 +346,7 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
             {/* Messages Area */}
             <div 
               ref={scrollRef}
-              className="flex-1 overflow-y-auto p-6 space-y-4 bg-zinc-50/50"
+              className="flex-1 overflow-y-auto p-6 space-y-4 bg-background/50"
             >
               {messages.map((msg) => (
                 <div 
@@ -355,14 +355,14 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
                 >
                   <div className={`max-w-[80%] rounded-2xl p-3 text-sm shadow-sm relative group ${
                     msg.sender_id === user?.id 
-                      ? 'bg-indigo-600 text-white rounded-tr-none' 
-                      : 'bg-white text-zinc-900 border border-zinc-100 rounded-tl-none'
+                      ? 'bg-indigo-600 text-primary-foreground rounded-tr-none' 
+                      : 'bg-white text-foreground border border-border rounded-tl-none'
                   }`}>
                     {msg.text}
                     {profile?.role === 'admin' && (
                       <button 
                         onClick={() => handleDeleteMessage(msg.id)}
-                        className="absolute -top-2 -right-2 h-6 w-6 bg-white rounded-full shadow-md border border-zinc-100 flex items-center justify-center text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-2 -right-2 h-6 w-6 bg-white rounded-full shadow-md border border-border flex items-center justify-center text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <Trash2 className="h-3 w-3" />
                       </button>
@@ -378,12 +378,12 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
             </div>
 
             {/* Input Area */}
-            <form onSubmit={handleSendMessage} className="p-4 border-t border-zinc-100 bg-white flex gap-2">
+            <form onSubmit={handleSendMessage} className="p-4 border-t border-border bg-white flex gap-2">
               <Input
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Type your message..."
-                className="flex-1 rounded-full bg-zinc-50 border-zinc-200 focus:ring-indigo-500"
+                className="flex-1 rounded-full bg-background border-border focus:ring-indigo-500"
               />
               <Button type="submit" size="icon" className="rounded-full bg-indigo-600 hover:bg-indigo-700 h-10 w-10">
                 <Send className="h-4 w-4" />
@@ -391,11 +391,11 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
             </form>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-zinc-400 p-8 text-center">
-            <div className="h-20 w-20 rounded-full bg-zinc-50 flex items-center justify-center mb-4">
+          <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-8 text-center">
+            <div className="h-20 w-20 rounded-full bg-background flex items-center justify-center mb-4">
               <MessageSquare className="h-10 w-10 text-zinc-200" />
             </div>
-            <h3 className="text-lg font-semibold text-zinc-900 mb-2">Select a conversation</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-2">Select a conversation</h3>
             <p className="max-w-xs text-sm">Choose a provider from the list to start messaging or view your history.</p>
           </div>
         )}

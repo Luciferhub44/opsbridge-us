@@ -53,17 +53,17 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded bg-zinc-900 text-white font-bold text-xl">O</div>
+          <div className="flex h-10 w-10 items-center justify-center rounded bg-primary text-primary-foreground font-bold text-xl">O</div>
           <span className="text-2xl font-bold tracking-tight">OpsBridge US</span>
         </div>
 
         <Card className="p-8">
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-zinc-900">Set New Password</h1>
-            <p className="text-sm text-zinc-500 mt-1">
+            <h1 className="text-2xl font-bold text-foreground">Set New Password</h1>
+            <p className="text-sm text-muted-foreground mt-1">
               Please enter your new password below.
             </p>
           </div>
@@ -104,7 +104,7 @@ export default function ResetPasswordPage() {
               <button 
                 type="button" 
                 onClick={() => navigate('/auth')}
-                className="text-sm font-semibold text-zinc-900 hover:underline"
+                className="text-sm font-semibold text-foreground hover:underline"
               >
                 Back to login
               </button>
@@ -112,7 +112,7 @@ export default function ResetPasswordPage() {
           </form>
         </Card>
 
-        <div className="mt-8 flex items-center justify-center gap-2 text-xs text-zinc-400 font-medium uppercase tracking-widest">
+        <div className="mt-8 flex items-center justify-center gap-2 text-xs text-muted-foreground font-medium uppercase tracking-widest">
           <ShieldCheck className="h-4 w-4" />
           Enterprise-Grade Security
         </div>

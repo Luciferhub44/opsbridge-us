@@ -77,19 +77,19 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded bg-zinc-900 text-white font-bold text-xl">O</div>
+          <div className="flex h-10 w-10 items-center justify-center rounded bg-primary text-primary-foreground font-bold text-xl">O</div>
           <span className="text-2xl font-bold tracking-tight">OpsBridge US</span>
         </div>
 
         <Card className="p-8">
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-zinc-900">
+            <h1 className="text-2xl font-bold text-foreground">
               {mode === 'login' ? 'Welcome Back' : mode === 'signup' ? 'Create Account' : 'Reset Password'}
             </h1>
-            <p className="text-sm text-zinc-500 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               {mode === 'login' ? 'Log in to manage your US operations.' 
                : mode === 'signup' ? 'Join the elite network of US operational partners.' 
                : 'Enter your email and we will send you a reset link.'}
@@ -145,7 +145,7 @@ export default function AuthPage() {
                     <button 
                       type="button" 
                       onClick={() => toggleMode('forgot_password')}
-                      className="text-xs font-semibold text-zinc-900 hover:underline"
+                      className="text-xs font-semibold text-foreground hover:underline"
                     >
                       Forgot password?
                     </button>
@@ -171,7 +171,7 @@ export default function AuthPage() {
 
             {mode !== 'forgot_password' && (
               <div className="text-center pt-4">
-                <p className="text-xs text-zinc-400 leading-relaxed">
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   By continuing, you agree to our <Link to="/terms" className="underline">Terms of Service</Link> and <Link to="/privacy" className="underline">Privacy Policy</Link>.
                 </p>
               </div>
@@ -182,7 +182,7 @@ export default function AuthPage() {
                 <button 
                   type="button" 
                   onClick={() => toggleMode('login')}
-                  className="text-sm font-semibold text-zinc-900 hover:underline"
+                  className="text-sm font-semibold text-foreground hover:underline"
                 >
                   Back to login
                 </button>
@@ -191,12 +191,12 @@ export default function AuthPage() {
           </form>
 
           {mode !== 'forgot_password' && (
-            <div className="mt-8 pt-6 border-t border-zinc-100 text-center">
-              <p className="text-sm text-zinc-500">
+            <div className="mt-8 pt-6 border-t border-border text-center">
+              <p className="text-sm text-muted-foreground">
                 {mode === 'login' ? "Don't have an account?" : "Already have an account?"}
                 <button 
                   onClick={() => toggleMode(mode === 'login' ? 'signup' : 'login')}
-                  className="ml-1 font-semibold text-zinc-900 hover:underline"
+                  className="ml-1 font-semibold text-foreground hover:underline"
                   type="button"
                 >
                   {mode === 'login' ? 'Sign up' : 'Log in'}
@@ -206,7 +206,7 @@ export default function AuthPage() {
           )}
         </Card>
 
-        <div className="mt-8 flex items-center justify-center gap-2 text-xs text-zinc-400 font-medium uppercase tracking-widest">
+        <div className="mt-8 flex items-center justify-center gap-2 text-xs text-muted-foreground font-medium uppercase tracking-widest">
           <ShieldCheck className="h-4 w-4" />
           Enterprise-Grade Security
         </div>

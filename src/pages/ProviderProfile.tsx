@@ -35,7 +35,7 @@ export function ProviderProfileContent({
           <Card className="p-8 border-none shadow-sm bg-white rounded-[2rem]">
             <div className="flex items-start justify-between mb-8">
               <div className="flex items-center gap-6">
-                <div className="h-24 w-24 rounded-[1.5rem] bg-zinc-50 flex items-center justify-center text-zinc-400 border-4 border-white shadow-xl">
+                <div className="h-24 w-24 rounded-[1.5rem] bg-background flex items-center justify-center text-muted-foreground border-4 border-white shadow-xl">
                   {provider.photo_url ? (
                     <img src={provider.photo_url} alt="" className="h-full w-full object-cover rounded-[1.5rem]" />
                   ) : (
@@ -44,10 +44,10 @@ export function ProviderProfileContent({
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h1 className="text-3xl font-black text-zinc-900 tracking-tighter">{provider.display_name || provider.email}</h1>
+                    <h1 className="text-3xl font-black text-foreground tracking-tighter">{provider.display_name || provider.email}</h1>
                     {provider.is_verified && <ShieldCheck className="h-6 w-6 text-emerald-500" />}
                   </div>
-                  <p className="text-zinc-500 font-medium flex items-center gap-2">
+                  <p className="text-muted-foreground font-medium flex items-center gap-2">
                     <MapPin className="h-4 w-4" />
                     {provider.location || 'United States'}
                   </p>
@@ -58,44 +58,44 @@ export function ProviderProfileContent({
                   <Star className="h-5 w-5 fill-current" />
                   {provider.rating || '5.0'}
                 </div>
-                <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Verified Provider</span>
+                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Verified Provider</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-8 py-8 border-y border-zinc-100">
+            <div className="grid grid-cols-3 gap-8 py-8 border-y border-border">
               <div>
-                <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">Industry</div>
-                <div className="font-black text-zinc-900">{provider.industry || 'General Operations'}</div>
+                <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Industry</div>
+                <div className="font-black text-foreground">{provider.industry || 'General Operations'}</div>
               </div>
               <div>
-                <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">Completed</div>
-                <div className="font-black text-zinc-900">{completedProjects.length} Projects</div>
+                <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Completed</div>
+                <div className="font-black text-foreground">{completedProjects.length} Projects</div>
               </div>
               <div>
-                <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">Member Since</div>
-                <div className="font-black text-zinc-900">2026</div>
+                <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Member Since</div>
+                <div className="font-black text-foreground">2026</div>
               </div>
             </div>
 
             <div className="mt-8 space-y-6">
               <div>
-                <h3 className="text-lg font-black text-zinc-900 mb-4 tracking-tight">About</h3>
-                <p className="text-zinc-600 leading-relaxed font-medium">
+                <h3 className="text-lg font-black text-foreground mb-4 tracking-tight">About</h3>
+                <p className="text-muted-foreground leading-relaxed font-medium">
                   {provider.bio || `${provider.display_name || 'This provider'} is a verified US business owner specializing in ${provider.industry || 'operational excellence'}. They have a proven track record of helping international companies scale their US presence through strategic supply chain management and regulatory compliance.`}
                 </p>
               </div>
 
               {vettingData && (
-                <div className="pt-6 border-t border-zinc-100">
-                  <h3 className="text-lg font-black text-zinc-900 mb-4 tracking-tight">Operational Details</h3>
-                  <div className="bg-zinc-50 p-6 rounded-2xl border border-zinc-100">
-                    <p className="text-zinc-600 leading-relaxed font-medium">
+                <div className="pt-6 border-t border-border">
+                  <h3 className="text-lg font-black text-foreground mb-4 tracking-tight">Operational Details</h3>
+                  <div className="bg-background p-6 rounded-2xl border border-border">
+                    <p className="text-muted-foreground leading-relaxed font-medium">
                       {vettingData.operational_details}
                     </p>
                     <div className="mt-4 flex items-center gap-4">
-                      <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">EIN: {vettingData.ein}</div>
-                      <div className="h-1 w-1 rounded-full bg-zinc-200" />
-                      <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Status: {vettingData.status}</div>
+                      <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">EIN: {vettingData.ein}</div>
+                      <div className="h-1 w-1 rounded-full bg-border" />
+                      <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Status: {vettingData.status}</div>
                     </div>
                   </div>
                 </div>
@@ -104,13 +104,13 @@ export function ProviderProfileContent({
           </Card>
 
           <section className="space-y-6">
-            <h2 className="text-xl font-black text-zinc-900 flex items-center gap-2 tracking-tight">
-              <Briefcase className="h-5 w-5 text-zinc-500" />
+            <h2 className="text-xl font-black text-foreground flex items-center gap-2 tracking-tight">
+              <Briefcase className="h-5 w-5 text-muted-foreground" />
               Completed Projects
             </h2>
             <div className="grid gap-4">
               {completedProjects.length === 0 ? (
-                <Card className="py-12 text-center text-zinc-400 font-black uppercase tracking-widest text-xs italic bg-white border-none shadow-sm rounded-[2rem]">
+                <Card className="py-12 text-center text-muted-foreground font-black uppercase tracking-widest text-xs italic bg-white border-none shadow-sm rounded-[2rem]">
                   No completed projects listed yet.
                 </Card>
               ) : (
@@ -118,8 +118,8 @@ export function ProviderProfileContent({
                   <Card key={project.id} className="p-8 border-none shadow-sm bg-white rounded-[2rem] hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-black text-zinc-900 text-lg tracking-tight">{project.title}</h4>
-                        <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mt-1">
+                        <h4 className="font-black text-foreground text-lg tracking-tight">{project.title}</h4>
+                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1">
                           Completed on {project.created_at ? new Date(project.created_at).toLocaleDateString() : 'Recent'}
                         </p>
                       </div>
@@ -138,31 +138,31 @@ export function ProviderProfileContent({
         {/* Right Column: Actions */}
         <div className="space-y-6">
           <Card className="p-8 sticky top-24 border-none shadow-xl bg-white rounded-[2rem]">
-            <h3 className="text-xl font-black text-zinc-900 mb-4 tracking-tight">Contact Provider</h3>
-            <p className="text-sm text-zinc-500 mb-8 leading-relaxed font-medium">
+            <h3 className="text-xl font-black text-foreground mb-4 tracking-tight">Contact Provider</h3>
+            <p className="text-sm text-muted-foreground mb-8 leading-relaxed font-medium">
               Interested in working with {provider.display_name || 'this provider'}? Send them a message to discuss your US operational needs.
             </p>
             <div className="space-y-4">
               <Button 
                 onClick={onConnect}
-                className="w-full h-14 rounded-2xl bg-zinc-900 text-white shadow-xl shadow-zinc-900/10 font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-transform gap-2"
+                className="w-full h-14 rounded-2xl bg-primary text-primary-foreground shadow-xl shadow-zinc-900/10 font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-transform gap-2"
               >
                 <MessageSquare className="h-4 w-4" />
                 Send Message
               </Button>
-              <Button variant="outline" className="w-full h-14 rounded-2xl border-zinc-100 hover:border-zinc-900 transition-all font-black text-[10px] uppercase tracking-widest">
+              <Button variant="outline" className="w-full h-14 rounded-2xl border-border hover:border-zinc-900 transition-all font-black text-[10px] uppercase tracking-widest">
                 Request Quote
               </Button>
             </div>
-            <div className="mt-8 pt-8 border-t border-zinc-100">
-              <div className="flex items-center gap-3 text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+            <div className="mt-8 pt-8 border-t border-border">
+              <div className="flex items-center gap-3 text-[10px] font-black text-muted-foreground uppercase tracking-widest">
                 <Clock className="h-4 w-4" />
                 Average response time: 4 hours
               </div>
             </div>
           </Card>
 
-          <Card className="p-8 bg-zinc-900 text-white border-none rounded-[2rem] shadow-2xl shadow-zinc-900/20">
+          <Card className="p-8 bg-primary text-primary-foreground border-none rounded-[2rem] shadow-2xl shadow-zinc-900/20">
             <h3 className="text-xl font-black mb-6 tracking-tight">Compliance Check</h3>
             <div className="space-y-6">
               <div className="flex items-center gap-4">
@@ -171,7 +171,7 @@ export function ProviderProfileContent({
                 </div>
                 <div>
                   <div className="text-sm font-black uppercase tracking-widest">D&B Verified</div>
-                  <div className="text-[10px] text-zinc-400 font-black uppercase tracking-widest mt-1">DUNS: 12-345-6789</div>
+                  <div className="text-[10px] text-muted-foreground font-black uppercase tracking-widest mt-1">DUNS: 12-345-6789</div>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -180,7 +180,7 @@ export function ProviderProfileContent({
                 </div>
                 <div>
                   <div className="text-sm font-black uppercase tracking-widest">EIN Confirmed</div>
-                  <div className="text-[10px] text-zinc-400 font-black uppercase tracking-widest mt-1">Verified by OpsBridge</div>
+                  <div className="text-[10px] text-muted-foreground font-black uppercase tracking-widest mt-1">Verified by OpsBridge</div>
                 </div>
               </div>
             </div>
@@ -261,10 +261,10 @@ export default function ProviderProfile() {
   if (!provider) return <div className="flex h-screen items-center justify-center">Provider not found.</div>;
 
   return (
-    <div className="min-h-screen bg-zinc-50 pb-20">
-      <nav className="sticky top-0 z-10 border-b border-zinc-200 bg-white/80 backdrop-blur-md">
+    <div className="min-h-screen bg-background pb-20">
+      <nav className="sticky top-0 z-10 border-b border-border bg-white/80 backdrop-blur-md">
         <div className="mx-auto max-w-7xl px-6 py-4">
-          <Link to="/dashboard" className="flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors">
+          <Link to="/dashboard" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
           </Link>
@@ -281,7 +281,7 @@ export default function ProviderProfile() {
 
       {/* Messaging Modal */}
       {selectedProviderForMessage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/60 backdrop-blur-sm p-4">
           <div className="relative w-full max-w-4xl">
             <MessagingSystem 
               recipientId={selectedProviderForMessage.id} 
