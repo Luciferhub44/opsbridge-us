@@ -71,6 +71,7 @@ export default function ProviderOnboarding({ user, onComplete }: ProviderOnboard
       const { error: vettingError } = await supabase
         .from('vetting_applications')
         .insert([{
+          user_id: userId,
           provider_id: userId,
           entity_name: formData.companyName,
           ein: formData.ein,
