@@ -1,8 +1,27 @@
 import { ArrowRight, ShieldCheck, Globe, Zap, Building2, Briefcase, CheckCircle2, UserPlus, Search, Rocket, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { Marquee } from '@/components/ui/marquee';
+
+import brightway from '@/assets/partners/brightway.png';
+import freightnet from '@/assets/partners/freightnet.png';
+import innotek from '@/assets/partners/Innotek.png';
+import mansfield from '@/assets/partners/Mansfield.png';
+import nansteel from '@/assets/partners/Nansteel.png';
+import tenral from '@/assets/partners/TenRal.png';
+import wkCargo from '@/assets/partners/wk_cargo.svg';
 
 export default function LandingPage() {
+  const partners = [
+    { name: 'Brightway', logo: brightway },
+    { name: 'FreightNet', logo: freightnet },
+    { name: 'InnoTek', logo: innotek },
+    { name: 'Mansfield', logo: mansfield },
+    { name: 'Nansteel', logo: nansteel },
+    { name: 'TenRal', logo: tenral },
+    { name: 'WK Cargo', logo: wkCargo },
+  ];
+
   return (
     <div className="min-h-screen bg-zinc-50 text-zinc-900 selection:bg-zinc-900 selection:text-white">
       {/* Navigation */}
@@ -71,11 +90,19 @@ export default function LandingPage() {
       <section className="border-y border-zinc-200 bg-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-zinc-400 mb-4">Trusted by Global Entities</h2>
-            <div className="flex flex-wrap justify-center gap-12 opacity-40 grayscale">
-              {['Manufacturing', 'Logistics', 'Compliance', 'Supply Chain', 'Legal'].map(name => (
-                <span key={name} className="text-2xl font-bold italic font-serif">{name}</span>
-              ))}
+            <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-zinc-400 mb-8">Trusted by Global Entities</h2>
+            <div className="flex w-full items-center justify-center overflow-hidden">
+              <Marquee pauseOnHover className="[--duration:40s] flex items-center justify-center opacity-40 grayscale hover:opacity-100 transition-opacity">
+                {partners.map((partner) => (
+                  <div key={partner.name} className="mx-12 flex h-12 w-32 items-center justify-center">
+                    <img
+                      src={partner.logo}
+                      alt={partner.name}
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  </div>
+                ))}
+              </Marquee>
             </div>
           </div>
           
