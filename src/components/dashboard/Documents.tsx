@@ -27,6 +27,7 @@ export default function Documents() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewingDocument, setViewingDocument] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchDocuments = async () => {
@@ -313,6 +314,15 @@ export default function Documents() {
                         variant="ghost" 
                         size="icon" 
                         className="h-9 w-9 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors" 
+                        onClick={() => setViewingDocument(doc)}
+                        title="View Document"
+                      >
+                        <FileText className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-9 w-9 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors" 
                         onClick={() => window.open(doc.url, '_blank')}
                         title="Download"
                       >
@@ -342,6 +352,60 @@ export default function Documents() {
           </p>
         </div>
       </Card>
+
+      {/* Document Viewer Modal */}
+      {viewingDocument && (
+        <div className="fixed inset-0 z-[250] flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <Card className="w-full max-w-4xl max-h-[90vh] flex flex-col p-0 rounded-xl border border-border bg-card shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30 shrink-0">
+              <h3 className="text-lg font-bold text-foreground flex items-center gap-2 truncate">
+                <FileText className="h-5 w-5 text-muted-foreground" />
+                {viewingDocument.name}
+              </h3>
+              <div className="flex items-center gap-2 shrink-0 pl-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => window.open(viewingDocument.url, '_blank')}
+                  className="h-9 font-medium"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setViewingDocument(null)}
+                  className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </Button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-auto bg-muted/10 flex justify-center items-center min-h-[50vh] p-4">
+              {viewingDocument.type === 'PNG' || viewingDocument.type === 'JPG' || viewingDocument.type === 'JPEG' ? (
+                <img 
+                  src={viewingDocument.url} 
+                  alt={viewingDocument.name} 
+                  className="max-w-full max-h-[75vh] object-contain rounded-md shadow-sm border border-border bg-background" 
+                />
+              ) : viewingDocument.type === 'DOC' || viewingDocument.type === 'DOCX' || viewingDocument.type === 'XLS' || viewingDocument.type === 'XLSX' ? (
+                <iframe 
+                  src={`https://docs.google.com/gview?url=${encodeURIComponent(viewingDocument.url)}&embedded=true`} 
+                  className="w-full h-[75vh] rounded-md border border-border bg-background" 
+                  frameBorder="0" 
+                />
+              ) : (
+                <iframe 
+                  src={viewingDocument.url} 
+                  className="w-full h-[75vh] rounded-md border border-border bg-background" 
+                  frameBorder="0" 
+                />
+              )}
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

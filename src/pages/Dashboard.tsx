@@ -19,7 +19,8 @@ import {
   MessageSquare,
   Camera,
   User,
-  Loader2, DollarSign
+  Loader2, DollarSign,
+  FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -58,6 +59,7 @@ export default function Dashboard() {
     title: string;
     message: string;
   }>({ show: false, title: '', message: '' });
+  const [viewingDocument, setViewingDocument] = useState<any>(null);
   const [settingsForm, setSettingsForm] = useState({
     displayName: '',
     companyName: '',
@@ -1434,6 +1436,79 @@ export default function Dashboard() {
               </Card>
             </div>
 
+            <Card className="p-0 overflow-hidden border border-border bg-card rounded-xl shadow-sm mb-6">
+              <div className="border-b border-border bg-card px-6 py-4 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-foreground">Document Management</h3>
+                  <p className="text-sm text-muted-foreground">{allDocuments.length} Total Documents</p>
+                </div>
+              </div>
+              <div className="divide-y divide-border overflow-y-auto max-h-[500px]">
+                {allDocuments.length === 0 ? (
+                  <div className="px-6 py-16 text-center flex flex-col items-center">
+                    <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                      <ShieldCheck className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                    <p className="text-muted-foreground text-sm">No documents found.</p>
+                  </div>
+                ) : (
+                  allDocuments.map((doc) => (
+                    <div key={doc.id} className="flex flex-col md:flex-row md:items-center justify-between px-6 py-4 hover:bg-muted/50 transition-colors gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground shrink-0 border border-border">
+                          <FileText className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-bold text-foreground text-sm truncate">{doc.name}</div>
+                          <div className="text-xs text-muted-foreground truncate mt-0.5">
+                            Owner: {doc.owner?.display_name || doc.owner?.email || 'Unknown'}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <div className={cn(
+                          "px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider",
+                          doc.status === 'verified' ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : 
+                          doc.status === 'pending' ? "bg-amber-50 text-amber-600 border border-amber-100" : "bg-rose-50 text-rose-600 border border-rose-100"
+                        )}>
+                          {doc.status}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8 px-3 text-xs border-border hover:bg-muted"
+                            onClick={() => setViewingDocument(doc)}
+                          >
+                            <ExternalLink className="h-3 w-3 mr-1" /> View
+                          </Button>
+                          {doc.status === 'pending' && (
+                            <>
+                              <Button 
+                                size="sm" 
+                                className="h-8 px-3 text-xs bg-primary text-primary-foreground hover:bg-primary/90"
+                                onClick={() => handleApproveDocument(doc)}
+                              >
+                                Approve
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="h-8 px-3 text-xs text-destructive hover:bg-destructive/10"
+                                onClick={() => handleRejectDocument(doc)}
+                              >
+                                Reject
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </Card>
+
             <Card className="p-0 overflow-hidden border-none bg-card rounded-xl border border-border">
               <div className="border-b border-border bg-card px-6 py-4 flex items-center justify-between">
                 <div>
@@ -1606,6 +1681,60 @@ export default function Dashboard() {
             recipientName={selectedProviderForMessage.display_name || selectedProviderForMessage.email}
             onClose={() => setSelectedProviderForMessage(null)}
           />
+        </div>
+      )}
+
+      {/* Document Viewer Modal */}
+      {viewingDocument && (
+        <div className="fixed inset-0 z-[250] flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <Card className="w-full max-w-4xl max-h-[90vh] flex flex-col p-0 rounded-xl border border-border bg-card shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30 shrink-0">
+              <h3 className="text-lg font-bold text-foreground flex items-center gap-2 truncate">
+                <FileText className="h-5 w-5 text-muted-foreground" />
+                {viewingDocument.name}
+              </h3>
+              <div className="flex items-center gap-2 shrink-0 pl-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => window.open(viewingDocument.url, '_blank')}
+                  className="h-9 font-medium"
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Open in Browser
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setViewingDocument(null)}
+                  className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-auto bg-muted/10 flex justify-center items-center min-h-[50vh] p-4">
+              {viewingDocument.type === 'PNG' || viewingDocument.type === 'JPG' || viewingDocument.type === 'JPEG' ? (
+                <img 
+                  src={viewingDocument.url} 
+                  alt={viewingDocument.name} 
+                  className="max-w-full max-h-[75vh] object-contain rounded-md shadow-sm border border-border bg-background" 
+                />
+              ) : viewingDocument.type === 'DOC' || viewingDocument.type === 'DOCX' || viewingDocument.type === 'XLS' || viewingDocument.type === 'XLSX' ? (
+                <iframe 
+                  src={`https://docs.google.com/gview?url=${encodeURIComponent(viewingDocument.url)}&embedded=true`} 
+                  className="w-full h-[75vh] rounded-md border border-border bg-background" 
+                  frameBorder="0" 
+                />
+              ) : (
+                <iframe 
+                  src={viewingDocument.url} 
+                  className="w-full h-[75vh] rounded-md border border-border bg-background" 
+                  frameBorder="0" 
+                />
+              )}
+            </div>
+          </Card>
         </div>
       )}
     </div>
