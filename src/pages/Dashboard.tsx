@@ -62,6 +62,7 @@ export default function Dashboard() {
   });
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
 
   useEffect(() => {
     if (profile) {
@@ -76,34 +77,74 @@ export default function Dashboard() {
   }, [profile]);
 
   useEffect(() => {
-    if (!profile) return;
+    if (!profile?.id) return;
+
+    const fetchUnreadMessages = async () => {
+      const { count } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_read', false)
+        .neq('sender_id', profile.id);
+      
+      setUnreadMessagesCount(count || 0);
+    };
+
+    fetchUnreadMessages();
+
+    // Subscribe to messages changes to update count
+    const channel = supabase
+      .channel('unread-messages-count')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'messages'
+      }, fetchUnreadMessages)
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.id]);
+
+  useEffect(() => {
+    if (!profile?.id) return;
 
     const fetchNotifications = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('notifications')
         .select('*')
         .eq('user_id', profile.id)
         .order('created_at', { ascending: false })
         .limit(10);
+      
+      if (error) {
+        console.error("Error fetching notifications:", error);
+        return;
+      }
       if (data) setNotifications(data);
     };
 
     fetchNotifications();
 
     const channel = supabase
-      .channel('public:notifications')
+      .channel(`user-notifications-${profile.id}`)
       .on('postgres_changes', { 
         event: '*', 
         schema: 'public', 
         table: 'notifications',
         filter: `user_id=eq.${profile.id}`
-      }, fetchNotifications)
-      .subscribe();
+      }, (payload) => {
+        console.log("Notification change received:", payload);
+        fetchNotifications();
+      })
+      .subscribe((status) => {
+        console.log("Notification subscription status:", status);
+      });
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [profile]);
+  }, [profile?.id]);
 
   const handleUpdateSettings = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -427,7 +468,12 @@ export default function Dashboard() {
             {[
               { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
               { id: 'projects', label: 'Projects', icon: Briefcase },
-              { id: 'messages', label: 'Messages', icon: MessageSquare },
+              { 
+                id: 'messages', 
+                label: 'Messages', 
+                icon: MessageSquare,
+                badge: unreadMessagesCount > 0 ? unreadMessagesCount : null 
+              },
               profile?.role === 'admin' && { id: 'providers', label: 'Providers', icon: Users },
               { id: 'documents', label: 'Documents', icon: ShieldCheck },
               { id: 'settings', label: 'Settings', icon: Settings },
@@ -437,14 +483,19 @@ export default function Dashboard() {
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors relative",
                   activeTab === item.id 
                     ? "bg-muted text-foreground" 
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
                 <item.icon className={cn("h-4 w-4", activeTab === item.id ? "text-foreground" : "text-muted-foreground")} />
-                {item.label}
+                <span className="flex-1 text-left">{item.label}</span>
+                {item.badge && (
+                  <span className="bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                    {item.badge}
+                  </span>
+                )}
               </button>
             ))}
           </nav>
