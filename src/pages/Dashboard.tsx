@@ -178,6 +178,24 @@ export default function Dashboard() {
     }
   };
 
+  const markAllNotificationsAsRead = async () => {
+    if (!profile?.id) return;
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('user_id', profile.id)
+        .eq('read', false);
+
+      if (error) throw error;
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      toast.success('All notifications marked as read');
+    } catch (error) {
+      console.error("Error marking all notifications read:", error);
+      toast.error('Failed to mark all as read');
+    }
+  };
+
   const [providers, setProviders] = useState<any[]>([]);
   const [vettingApps, setVettingApps] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
@@ -553,12 +571,22 @@ export default function Dashboard() {
             </button>
             
             {showNotifications && (
-              <div className="absolute top-20 right-8 w-80 bg-card rounded-xl  border border-border z-50 overflow-hidden">
+              <div className="absolute top-20 right-8 w-80 bg-card rounded-xl  border border-border z-50 overflow-hidden shadow-xl">
                 <div className="p-3 border-b border-border flex items-center justify-between bg-background">
                   <span className="text-xs font-bold text-foreground uppercase tracking-wider">Notifications</span>
-                  <button onClick={() => setShowNotifications(false)} className="text-muted-foreground hover:text-foreground">
-                    <X className="h-4 w-4" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {notifications.some(n => !n.read) && (
+                      <button 
+                        onClick={markAllNotificationsAsRead}
+                        className="text-[10px] font-semibold text-primary hover:underline"
+                      >
+                        Mark all as read
+                      </button>
+                    )}
+                    <button onClick={() => setShowNotifications(false)} className="text-muted-foreground hover:text-foreground">
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
                 <div className="max-h-96 overflow-y-auto">
                   {notifications.length === 0 ? (
