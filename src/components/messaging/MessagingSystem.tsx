@@ -404,13 +404,13 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
     return (
       <div className="mt-2 p-2 rounded-lg bg-background/50 border border-border/50">
         {isImage ? (
-          <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer">
+          <div onClick={() => setSelectedImage(msg.attachment_url!)}>
             <img 
               src={msg.attachment_url} 
               alt={msg.attachment_name} 
               className="max-w-full rounded-md max-h-48 object-cover cursor-pointer hover:opacity-90 transition-opacity"
             />
-          </a>
+          </div>
         ) : (
           <a 
             href={msg.attachment_url} 
@@ -617,6 +617,30 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
           </div>
         )}
       </div>
+
+      {/* Image Preview Modal */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-background/90 backdrop-blur-sm p-4"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div className="relative max-w-5xl max-h-[90vh] w-full h-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-4 right-4 z-[110] rounded-full bg-card/50 border border-border/50 hover:bg-card/80 text-foreground"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+            <img 
+              src={selectedImage} 
+              alt="Attachment Preview" 
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
