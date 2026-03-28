@@ -91,18 +91,15 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
       let query = supabase
         .from('chats')
         .select('*')
-        .order('updated_at', { ascending: false });
-
-      if (profile?.role !== 'admin') {
-        query = query.contains('participant_ids', [user.id]);
-      }
+        .order('updated_at', { ascending: false })
+        .contains('participant_ids', [user.id]);
 
       const { data, error } = await query;
 
       if (error) throw error;
 
       const fetchedChats = await Promise.all((data || []).map(async (chat) => {
-        const otherId = chat.participant_ids.find((p: string) => p !== user.id);
+        const otherId = chat.participant_ids.find((p: string) => p !== user.id) || user.id;
         
         // Fetch other participant's name
         const { data: profileData } = await supabase
@@ -263,12 +260,12 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
   };
 
   return (
-    <div className="flex h-[600px] w-full max-w-4xl overflow-hidden rounded-xl bg-card shadow-2xl border border-border">
+    <div className="flex h-[600px] w-full max-w-4xl overflow-hidden rounded-xl bg-card shadow-none border border-border">
       {/* Sidebar: Chat List */}
       <div className="w-80 border-r border-border bg-background flex flex-col">
         <div className="p-4 border-b border-border bg-card">
           <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-indigo-600" />
+            <MessageSquare className="h-5 w-5 text-primary" />
             Messages
           </h2>
         </div>
@@ -285,11 +282,11 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
                 onClick={() => setActiveChat(chat)}
                 className={`w-full p-3 rounded-lg flex items-center gap-3 transition-colors ${
                   activeChat?.id === chat.id 
-                    ? 'bg-indigo-50 border border-indigo-100' 
+                    ? 'bg-primary/10 border border-primary/20' 
                     : 'hover:bg-card border border-transparent'
                 }`}
               >
-                <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 flex-shrink-0">
+                <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0">
                   <User className="h-5 w-5" />
                 </div>
                 <div className="text-left overflow-hidden">
@@ -313,7 +310,7 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
             {/* Chat Header */}
             <div className="p-4 border-b border-border flex items-center justify-between bg-card">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
                   <User className="h-5 w-5" />
                 </div>
                 <div>
@@ -355,7 +352,7 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
                 >
                   <div className={`max-w-[80%] rounded-2xl p-3 text-sm shadow-sm relative group ${
                     msg.sender_id === user?.id 
-                      ? 'bg-indigo-600 text-primary-foreground rounded-tr-none' 
+                      ? 'bg-primary text-primary-foreground rounded-tr-none' 
                       : 'bg-card text-foreground border border-border rounded-tl-none'
                   }`}>
                     {msg.text}
@@ -383,9 +380,9 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Type your message..."
-                className="flex-1 rounded-full bg-background border-border focus:ring-indigo-500"
+                className="flex-1 rounded-full bg-background border-border focus:ring-primary/100"
               />
-              <Button type="submit" size="icon" className="rounded-full bg-indigo-600 hover:bg-indigo-700 h-10 w-10">
+              <Button type="submit" size="icon" className="rounded-full bg-primary hover:bg-primary/90 h-10 w-10">
                 <Send className="h-4 w-4" />
               </Button>
             </form>

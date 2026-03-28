@@ -1260,14 +1260,12 @@ export default function Dashboard() {
 
       {/* Messaging Modal */}
       {selectedProviderForMessage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-4xl bg-card rounded-xl  border border-border overflow-hidden">
-            <MessagingSystem 
-              recipientId={selectedProviderForMessage.id} 
-              recipientName={selectedProviderForMessage.display_name || selectedProviderForMessage.email}
-              onClose={() => setSelectedProviderForMessage(null)}
-            />
-          </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <MessagingSystem 
+            recipientId={selectedProviderForMessage.id} 
+            recipientName={selectedProviderForMessage.display_name || selectedProviderForMessage.email}
+            onClose={() => setSelectedProviderForMessage(null)}
+          />
         </div>
       )}
     </div>
