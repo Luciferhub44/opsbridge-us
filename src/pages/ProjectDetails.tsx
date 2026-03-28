@@ -187,7 +187,8 @@ export default function ProjectDetails() {
               <div className={cn(
                 "rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider border shadow-sm",
                 project.status === 'active' ? "bg-emerald-50 text-emerald-600 border-emerald-200" : 
-                project.status === 'in-review' ? "bg-amber-50 text-amber-600 border-amber-200" : "bg-muted text-muted-foreground border-border"
+                project.status === 'in-review' ? "bg-amber-50 text-amber-600 border-amber-200" : 
+                project.status === 'open' ? "bg-blue-50 text-blue-600 border-blue-200" : "bg-muted text-muted-foreground border-border"
               )}>
                 {project.status.replace('-', ' ')}
               </div>
@@ -275,7 +276,7 @@ export default function ProjectDetails() {
                           )}>
                             {app.status}
                           </div>
-                          {isOwner && app.status === 'pending' && project.status === 'in-review' && (
+                          {isOwner && app.status === 'pending' && (project.status === 'in-review' || project.status === 'open') && (
                             <Button size="sm" className="h-9 px-5 rounded-xl text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm" onClick={() => handleAcceptApplication(app)}>
                               Accept Proposal
                             </Button>
@@ -291,7 +292,7 @@ export default function ProjectDetails() {
 
           {/* Right Column: Actions */}
           <div className="space-y-6">
-            {profile?.role === 'provider' && profile.is_verified && !isOwner && (
+            {profile?.role === 'provider' && profile.is_verified && !isOwner && project.status === 'open' && (
               <Card className="p-0 sticky top-24 border border-border rounded-2xl bg-card overflow-hidden shadow-md">
                 <div className="bg-primary p-6 text-primary-foreground">
                    <h3 className="text-xl font-bold mb-1">Apply for Project</h3>
@@ -343,7 +344,8 @@ export default function ProjectDetails() {
                     <span className={cn(
                       "font-bold uppercase tracking-wider text-[10px] px-2 py-1 rounded-md border",
                       project.status === 'active' ? "bg-emerald-50 text-emerald-600 border-emerald-200" : 
-                      project.status === 'in-review' ? "bg-amber-50 text-amber-600 border-amber-200" : "bg-muted text-muted-foreground border-border"
+                      project.status === 'in-review' ? "bg-amber-50 text-amber-600 border-amber-200" : 
+                      project.status === 'open' ? "bg-blue-50 text-blue-600 border-blue-200" : "bg-muted text-muted-foreground border-border"
                     )}>{project.status.replace('-', ' ')}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">

@@ -273,7 +273,7 @@ export default function Dashboard() {
         query = query.eq('client_id', profile.id);
       } else if (profile.role === 'provider') {
         // Providers see their own projects and open projects they can apply for
-        query = query.or(`provider_id.eq.${profile.id},status.eq.in-review`);
+        query = query.or(`provider_id.eq.${profile.id},status.eq.open`);
       }
       
       const { data } = await query;
@@ -311,6 +311,27 @@ export default function Dashboard() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate('/');
+  };
+
+  const handleApproveProject = async (projectId: string, clientId: string, projectTitle: string) => {
+    try {
+      const { error } = await supabase.from('projects').update({ status: 'open' }).eq('id', projectId);
+      if (error) throw error;
+      
+      setProjects(prev => prev.map(p => p.id === projectId ? { ...p, status: 'open' } : p));
+      
+      await supabase.from('notifications').insert([{
+        user_id: clientId,
+        title: 'Project Approved',
+        message: `Your project "${projectTitle}" has been approved and is now open for provider applications.`,
+        read: false
+      }]);
+      
+      toast.success("Project approved successfully!");
+    } catch (error) {
+      console.error("Error approving project:", error);
+      toast.error("Failed to approve project.");
+    }
   };
 
   const handleApproveVetting = async (app: any) => {
@@ -787,8 +808,8 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
                 { label: 'Active Projects', value: projects.filter(p => p.status === 'active').length, icon: Briefcase, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+                { label: 'Open (Accepting Apps)', value: projects.filter(p => p.status === 'open').length, icon: CheckCircle2, color: 'text-blue-500', bg: 'bg-blue-50' },
                 { label: 'In Review', value: projects.filter(p => p.status === 'in-review').length, icon: Clock, color: 'text-amber-500', bg: 'bg-amber-50' },
-                { label: 'Completed', value: projects.filter(p => p.status === 'completed').length, icon: CheckCircle2, color: 'text-blue-500', bg: 'bg-blue-50' },
               ].map((stat, i) => (
                 <Card key={i} className="p-6 border border-border bg-card rounded-2xl shadow-sm flex items-center justify-between">
                   <div>
@@ -833,6 +854,7 @@ export default function Dashboard() {
                         <div className={cn(
                           "flex h-12 w-12 items-center justify-center rounded-xl border shadow-sm shrink-0 transition-colors",
                           project.status === 'active' ? "bg-emerald-50 border-emerald-100 text-emerald-600 group-hover:bg-emerald-100" : 
+                          project.status === 'open' ? "bg-blue-50 border-blue-100 text-blue-600 group-hover:bg-blue-100" : 
                           project.status === 'in-review' ? "bg-amber-50 border-amber-100 text-amber-600 group-hover:bg-amber-100" : 
                           "bg-background border-border text-muted-foreground group-hover:bg-muted"
                         )}>
@@ -857,6 +879,7 @@ export default function Dashboard() {
                         <div className={cn(
                           "rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider border shadow-sm mr-2",
                           project.status === 'active' ? "bg-emerald-50 text-emerald-600 border-emerald-200" : 
+                          project.status === 'open' ? "bg-blue-50 text-blue-600 border-blue-200" : 
                           project.status === 'in-review' ? "bg-amber-50 text-amber-600 border-amber-200" : "bg-muted text-muted-foreground border-border"
                         )}>
                           {project.status.replace('-', ' ')}
@@ -1414,6 +1437,16 @@ export default function Dashboard() {
                           {project.status.replace('-', ' ')}
                         </div>
                         <div className="flex items-center gap-2">
+                          {project.status === 'in-review' && (
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="h-8 px-3 rounded-md border-emerald-200 text-emerald-600 hover:bg-emerald-50 text-xs font-semibold"
+                              onClick={() => handleApproveProject(project.id, project.client_id, project.title)}
+                            >
+                              Approve
+                            </Button>
+                          )}
                           <Button 
                             variant="outline" 
                             size="icon"
