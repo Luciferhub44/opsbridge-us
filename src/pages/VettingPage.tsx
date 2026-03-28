@@ -67,7 +67,7 @@ export default function VettingPage() {
                 <p className="text-sm text-muted-foreground">We verify your US business is active and in good standing via Middesk.</p>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-700">Legal Entity Name</label>
+                    <label className="text-sm font-medium text-foreground">Legal Entity Name</label>
                     <Input 
                       placeholder="e.g. Acme Corp LLC" 
                       value={formData.entityName}
@@ -75,7 +75,7 @@ export default function VettingPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-700">EIN (Tax ID)</label>
+                    <label className="text-sm font-medium text-foreground">EIN (Tax ID)</label>
                     <Input 
                       placeholder="XX-XXXXXXX" 
                       value={formData.ein}
@@ -89,7 +89,7 @@ export default function VettingPage() {
                 <h2 className="text-lg font-semibold text-foreground">2. Proof of Success</h2>
                 <p className="text-sm text-muted-foreground">Submit a case study of a successful US-based operation you've managed.</p>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-zinc-700">Case Study Title</label>
+                  <label className="text-sm font-medium text-foreground">Case Study Title</label>
                   <Input 
                     placeholder="e.g. Scaling Texas Manufacturing for Global Auto" 
                     value={formData.caseStudyTitle}
@@ -97,7 +97,7 @@ export default function VettingPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-zinc-700">Operational Details</label>
+                  <label className="text-sm font-medium text-foreground">Operational Details</label>
                   <Textarea 
                     className="min-h-[150px]"
                     placeholder="Describe the project, challenges, and outcomes..." 

@@ -113,7 +113,7 @@ export default function AuthPage() {
 
             {mode === 'signup' && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-700">Full Name</label>
+                <label className="text-sm font-medium text-foreground">Full Name</label>
                 <Input
                   type="text"
                   placeholder="John Doe"
@@ -126,7 +126,7 @@ export default function AuthPage() {
             )}
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-700">Email</label>
+              <label className="text-sm font-medium text-foreground">Email</label>
               <Input
                 type="email"
                 placeholder="you@company.com"
@@ -140,7 +140,7 @@ export default function AuthPage() {
             {mode !== 'forgot_password' && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-zinc-700">Password</label>
+                  <label className="text-sm font-medium text-foreground">Password</label>
                   {mode === 'login' && (
                     <button 
                       type="button" 

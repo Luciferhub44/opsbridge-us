@@ -32,10 +32,10 @@ export function ProviderProfileContent({
       <div className="grid gap-8 lg:grid-cols-3">
         {/* Left Column: Profile Info */}
         <div className="lg:col-span-2 space-y-8">
-          <Card className="p-8 border-none shadow-sm bg-white rounded-[2rem]">
+          <Card className="p-8 border-none shadow-sm bg-card rounded-[2rem]">
             <div className="flex items-start justify-between mb-8">
               <div className="flex items-center gap-6">
-                <div className="h-24 w-24 rounded-[1.5rem] bg-background flex items-center justify-center text-muted-foreground border-4 border-white shadow-xl">
+                <div className="h-24 w-24 rounded-[1.5rem] bg-background flex items-center justify-center text-muted-foreground border-4 border-background shadow-xl">
                   {provider.photo_url ? (
                     <img src={provider.photo_url} alt="" className="h-full w-full object-cover rounded-[1.5rem]" />
                   ) : (
@@ -110,12 +110,12 @@ export function ProviderProfileContent({
             </h2>
             <div className="grid gap-4">
               {completedProjects.length === 0 ? (
-                <Card className="py-12 text-center text-muted-foreground font-black uppercase tracking-widest text-xs italic bg-white border-none shadow-sm rounded-[2rem]">
+                <Card className="py-12 text-center text-muted-foreground font-black uppercase tracking-widest text-xs italic bg-card border-none shadow-sm rounded-[2rem]">
                   No completed projects listed yet.
                 </Card>
               ) : (
                 completedProjects.map((project) => (
-                  <Card key={project.id} className="p-8 border-none shadow-sm bg-white rounded-[2rem] hover:shadow-md transition-shadow">
+                  <Card key={project.id} className="p-8 border-none shadow-sm bg-card rounded-[2rem] hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="font-black text-foreground text-lg tracking-tight">{project.title}</h4>
@@ -137,7 +137,7 @@ export function ProviderProfileContent({
 
         {/* Right Column: Actions */}
         <div className="space-y-6">
-          <Card className="p-8 sticky top-24 border-none shadow-xl bg-white rounded-[2rem]">
+          <Card className="p-8 sticky top-24 border-none shadow-xl bg-card rounded-[2rem]">
             <h3 className="text-xl font-black text-foreground mb-4 tracking-tight">Contact Provider</h3>
             <p className="text-sm text-muted-foreground mb-8 leading-relaxed font-medium">
               Interested in working with {provider.display_name || 'this provider'}? Send them a message to discuss your US operational needs.
@@ -145,12 +145,12 @@ export function ProviderProfileContent({
             <div className="space-y-4">
               <Button 
                 onClick={onConnect}
-                className="w-full h-14 rounded-2xl bg-primary text-primary-foreground shadow-xl shadow-zinc-900/10 font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-transform gap-2"
+                className="w-full h-14 rounded-2xl bg-primary text-primary-foreground shadow-xl  font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-transform gap-2"
               >
                 <MessageSquare className="h-4 w-4" />
                 Send Message
               </Button>
-              <Button variant="outline" className="w-full h-14 rounded-2xl border-border hover:border-zinc-900 transition-all font-black text-[10px] uppercase tracking-widest">
+              <Button variant="outline" className="w-full h-14 rounded-2xl border-border hover:border-primary transition-all font-black text-[10px] uppercase tracking-widest">
                 Request Quote
               </Button>
             </div>
@@ -162,11 +162,11 @@ export function ProviderProfileContent({
             </div>
           </Card>
 
-          <Card className="p-8 bg-primary text-primary-foreground border-none rounded-[2rem] shadow-2xl shadow-zinc-900/20">
+          <Card className="p-8 bg-primary text-primary-foreground border-none rounded-[2rem] shadow-2xl ">
             <h3 className="text-xl font-black mb-6 tracking-tight">Compliance Check</h3>
             <div className="space-y-6">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center">
+                <div className="h-12 w-12 rounded-2xl bg-primary-foreground/10 flex items-center justify-center">
                   <ShieldCheck className="h-6 w-6 text-emerald-400" />
                 </div>
                 <div>
@@ -175,7 +175,7 @@ export function ProviderProfileContent({
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center">
+                <div className="h-12 w-12 rounded-2xl bg-primary-foreground/10 flex items-center justify-center">
                   <ShieldCheck className="h-6 w-6 text-emerald-400" />
                 </div>
                 <div>
@@ -262,7 +262,7 @@ export default function ProviderProfile() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <nav className="sticky top-0 z-10 border-b border-border bg-white/80 backdrop-blur-md">
+      <nav className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-md">
         <div className="mx-auto max-w-7xl px-6 py-4">
           <Link to="/dashboard" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-4 w-4" />

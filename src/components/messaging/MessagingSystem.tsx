@@ -263,10 +263,10 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
   };
 
   return (
-    <div className="flex h-[600px] w-full max-w-4xl overflow-hidden rounded-xl bg-white shadow-2xl border border-border">
+    <div className="flex h-[600px] w-full max-w-4xl overflow-hidden rounded-xl bg-card shadow-2xl border border-border">
       {/* Sidebar: Chat List */}
       <div className="w-80 border-r border-border bg-background flex flex-col">
-        <div className="p-4 border-b border-border bg-white">
+        <div className="p-4 border-b border-border bg-card">
           <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
             <MessageSquare className="h-5 w-5 text-indigo-600" />
             Messages
@@ -286,7 +286,7 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
                 className={`w-full p-3 rounded-lg flex items-center gap-3 transition-colors ${
                   activeChat?.id === chat.id 
                     ? 'bg-indigo-50 border border-indigo-100' 
-                    : 'hover:bg-white border border-transparent'
+                    : 'hover:bg-card border border-transparent'
                 }`}
               >
                 <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 flex-shrink-0">
@@ -307,11 +307,11 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
       </div>
 
       {/* Main: Chat Window */}
-      <div className="flex-1 flex flex-col bg-white">
+      <div className="flex-1 flex flex-col bg-card">
         {activeChat ? (
           <>
             {/* Chat Header */}
-            <div className="p-4 border-b border-border flex items-center justify-between bg-white">
+            <div className="p-4 border-b border-border flex items-center justify-between bg-card">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
                   <User className="h-5 w-5" />
@@ -356,13 +356,13 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
                   <div className={`max-w-[80%] rounded-2xl p-3 text-sm shadow-sm relative group ${
                     msg.sender_id === user?.id 
                       ? 'bg-indigo-600 text-primary-foreground rounded-tr-none' 
-                      : 'bg-white text-foreground border border-border rounded-tl-none'
+                      : 'bg-card text-foreground border border-border rounded-tl-none'
                   }`}>
                     {msg.text}
                     {profile?.role === 'admin' && (
                       <button 
                         onClick={() => handleDeleteMessage(msg.id)}
-                        className="absolute -top-2 -right-2 h-6 w-6 bg-white rounded-full shadow-md border border-border flex items-center justify-center text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-2 -right-2 h-6 w-6 bg-card rounded-full shadow-md border border-border flex items-center justify-center text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <Trash2 className="h-3 w-3" />
                       </button>
@@ -378,7 +378,7 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
             </div>
 
             {/* Input Area */}
-            <form onSubmit={handleSendMessage} className="p-4 border-t border-border bg-white flex gap-2">
+            <form onSubmit={handleSendMessage} className="p-4 border-t border-border bg-card flex gap-2">
               <Input
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
@@ -393,7 +393,7 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-8 text-center">
             <div className="h-20 w-20 rounded-full bg-background flex items-center justify-center mb-4">
-              <MessageSquare className="h-10 w-10 text-zinc-200" />
+              <MessageSquare className="h-10 w-10 text-muted-foreground" />
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-2">Select a conversation</h3>
             <p className="max-w-xs text-sm">Choose a provider from the list to start messaging or view your history.</p>

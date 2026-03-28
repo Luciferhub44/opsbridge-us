@@ -416,7 +416,7 @@ export default function Dashboard() {
       {profile?.role === 'provider' && !profile.onboarding_completed && !onboardingDismissed && (
         <ProviderOnboarding user={profile} onComplete={handleDismissOnboarding} />
       )}
-      <aside className="w-72 border-r border-border bg-white flex flex-col h-screen sticky top-0">
+      <aside className="w-72 border-r border-border bg-card flex flex-col h-screen sticky top-0">
         <div className="p-8">
           <div className="flex items-center gap-3 mb-12">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold text-xl ">O</div>
@@ -488,21 +488,21 @@ export default function Dashboard() {
               <input 
                 type="text" 
                 placeholder="Search..." 
-                className="h-10 w-64 rounded-lg border border-border bg-white pl-9 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-zinc-300 transition-all"
+                className="h-10 w-64 rounded-lg border border-border bg-card pl-9 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-ring transition-all"
               />
             </div>
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
-              className="relative rounded-lg bg-white p-2 border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              className="relative rounded-lg bg-card p-2 border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             >
               <Bell className="h-5 w-5" />
               {notifications.some(n => !n.read) && (
-                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-blue-500 border-2 border-white"></span>
+                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-blue-500 border-2 border-background"></span>
               )}
             </button>
             
             {showNotifications && (
-              <div className="absolute top-20 right-8 w-80 bg-white rounded-xl  border border-border z-50 overflow-hidden">
+              <div className="absolute top-20 right-8 w-80 bg-card rounded-xl  border border-border z-50 overflow-hidden">
                 <div className="p-3 border-b border-border flex items-center justify-between bg-background">
                   <span className="text-xs font-bold text-foreground uppercase tracking-wider">Notifications</span>
                   <button onClick={() => setShowNotifications(false)} className="text-muted-foreground hover:text-foreground">
@@ -518,7 +518,7 @@ export default function Dashboard() {
                         key={n.id} 
                         onClick={() => markNotificationRead(n.id)}
                         className={cn(
-                          "p-4 border-b border-zinc-50 cursor-pointer hover:bg-muted transition-colors",
+                          "p-4 border-b border-border cursor-pointer hover:bg-muted transition-colors",
                           !n.read && "bg-blue-50/50"
                         )}
                       >
@@ -533,7 +533,7 @@ export default function Dashboard() {
             )}
             {profile.role === 'client' && (
               <Link to="/brief-builder">
-                <Button className="h-10 px-4 rounded-lg bg-primary text-primary-foreground hover:bg-zinc-800 text-sm font-medium">
+                <Button className="h-10 px-4 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium">
                   <Plus className="h-4 w-4 mr-2" /> New Project
                 </Button>
               </Link>
@@ -570,7 +570,7 @@ export default function Dashboard() {
                 profile.role === 'admin' && { label: 'Total Providers', value: providers.length, icon: Users, color: 'zinc' },
                 { label: 'Account Status', value: profile.is_verified ? 'Verified' : 'Pending', icon: ShieldCheck, color: profile.is_verified ? 'zinc' : 'zinc' }
               ].filter(Boolean).map((stat: any, i) => (
-                <Card key={i} className="p-6 border border-border  bg-white rounded-xl">
+                <Card key={i} className="p-6 border border-border  bg-card rounded-xl">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="h-10 w-10 rounded-lg bg-background flex items-center justify-center text-muted-foreground border border-border">
                       <stat.icon className="h-5 w-5" />
@@ -583,8 +583,8 @@ export default function Dashboard() {
             </div>
 
             <div className="grid grid-cols-1 gap-6">
-              <Card className="p-0 overflow-hidden border border-border  bg-white rounded-xl">
-                <div className="border-b border-border bg-white px-6 py-4 flex items-center justify-between">
+              <Card className="p-0 overflow-hidden border border-border  bg-card rounded-xl">
+                <div className="border-b border-border bg-card px-6 py-4 flex items-center justify-between">
                   <h3 className="text-base font-bold text-foreground">Recent Activity</h3>
                   <Button variant="ghost" size="sm" className="text-xs font-medium text-muted-foreground hover:text-foreground">View All</Button>
                 </div>
@@ -594,7 +594,7 @@ export default function Dashboard() {
                       <div className="h-8 w-8 rounded-full bg-background flex items-center justify-center shrink-0 border border-border text-muted-foreground">
                         <Plus className="h-4 w-4" />
                       </div>
-                      <div className="flex-1 border-b border-zinc-50 pb-6 last:border-0 last:pb-0">
+                      <div className="flex-1 border-b border-border pb-6 last:border-0 last:pb-0">
                         <div className="flex items-center justify-between mb-1">
                           <p className="text-sm font-semibold text-foreground">
                             Project: <span className="text-muted-foreground font-medium">{project.title}</span>
@@ -633,7 +633,7 @@ export default function Dashboard() {
               </div>
               {profile.role === 'client' && (
                 <Link to="/brief-builder">
-                  <Button className="h-10 px-4 rounded-lg bg-primary text-primary-foreground hover:bg-zinc-800 text-sm font-medium">
+                  <Button className="h-10 px-4 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium">
                     <Plus className="h-4 w-4 mr-2" />
                     New Project
                   </Button>
@@ -647,7 +647,7 @@ export default function Dashboard() {
                 { label: 'In Review', value: projects.filter(p => p.status === 'in-review').length, icon: Clock, color: 'zinc' },
                 { label: 'Completed', value: projects.filter(p => p.status === 'completed').length, icon: CheckCircle2, color: 'zinc' },
               ].map((stat, i) => (
-                <Card key={i} className="p-6 border border-border  bg-white rounded-xl">
+                <Card key={i} className="p-6 border border-border  bg-card rounded-xl">
                   <div className="flex items-center gap-3 mb-3">
                     <stat.icon className="h-4 w-4 text-muted-foreground" />
                     <h3 className="text-sm font-medium text-muted-foreground">{stat.label}</h3>
@@ -657,8 +657,8 @@ export default function Dashboard() {
               ))}
             </div>
 
-            <Card className="p-0 overflow-hidden border border-border  bg-white rounded-xl">
-              <div className="divide-y divide-zinc-100">
+            <Card className="p-0 overflow-hidden border border-border  bg-card rounded-xl">
+              <div className="divide-y divide-border">
                 {projects.length === 0 ? (
                   <div className="px-6 py-16 text-center">
                     <div className="h-12 w-12 rounded-full bg-background flex items-center justify-center mx-auto mb-4 border border-border text-muted-foreground">
@@ -688,7 +688,7 @@ export default function Dashboard() {
                               <Clock className="h-3.3 w-3.3" />
                               {project.created_at ? new Date(project.created_at).toLocaleDateString() : 'Recent'}
                             </span>
-                            <span className="h-1 w-1 rounded-full bg-zinc-300" />
+                            <span className="h-1 w-1 rounded-full bg-muted-foreground" />
                             <span className="text-xs font-medium text-muted-foreground">{project.value || 'Budget TBD'}</span>
                           </div>
                         </div>
@@ -736,21 +736,21 @@ export default function Dashboard() {
               <p className="text-muted-foreground text-sm mt-0.5">Manage your profile and account preferences.</p>
             </div>
 
-            <Card className="p-6 border border-border  bg-white rounded-xl">
+            <Card className="p-6 border border-border  bg-card rounded-xl">
               <form onSubmit={handleUpdateSettings} className="space-y-6">
                 <div className="grid gap-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-xs font-semibold text-zinc-700 uppercase tracking-wider">Name</label>
+                      <label className="text-xs font-semibold text-foreground uppercase tracking-wider">Name</label>
                       <Input 
                         type="text" 
                         value={settingsForm.displayName}
                         onChange={(e) => setSettingsForm({ ...settingsForm, displayName: e.target.value })}
-                        className="h-10 rounded-lg bg-background border-border focus:ring-1 focus:ring-zinc-300 text-sm"
+                        className="h-10 rounded-lg bg-background border-border focus:ring-1 focus:ring-ring text-sm"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-semibold text-zinc-700 uppercase tracking-wider">Email</label>
+                      <label className="text-xs font-semibold text-foreground uppercase tracking-wider">Email</label>
                       <Input 
                         type="email" 
                         disabled
@@ -762,20 +762,20 @@ export default function Dashboard() {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-xs font-semibold text-zinc-700 uppercase tracking-wider">Company Name</label>
+                      <label className="text-xs font-semibold text-foreground uppercase tracking-wider">Company Name</label>
                       <Input 
                         type="text" 
                         value={settingsForm.companyName}
                         onChange={(e) => setSettingsForm({ ...settingsForm, companyName: e.target.value })}
-                        className="h-10 rounded-lg bg-background border-border focus:ring-1 focus:ring-zinc-300 text-sm"
+                        className="h-10 rounded-lg bg-background border-border focus:ring-1 focus:ring-ring text-sm"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-semibold text-zinc-700 uppercase tracking-wider">Industry</label>
+                      <label className="text-xs font-semibold text-foreground uppercase tracking-wider">Industry</label>
                       <select 
                         value={settingsForm.industry}
                         onChange={(e) => setSettingsForm({ ...settingsForm, industry: e.target.value })}
-                        className="w-full h-10 rounded-lg bg-background border-border px-3 text-sm focus:ring-1 focus:ring-zinc-300 appearance-none border"
+                        className="w-full h-10 rounded-lg bg-background border-border px-3 text-sm focus:ring-1 focus:ring-ring appearance-none border"
                       >
                         <option value="">Select Industry</option>
                         <option value="Logistics & Supply Chain">Logistics & Supply Chain</option>
@@ -787,11 +787,11 @@ export default function Dashboard() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-zinc-700 uppercase tracking-wider">Bio</label>
+                    <label className="text-xs font-semibold text-foreground uppercase tracking-wider">Bio</label>
                     <textarea 
                       value={settingsForm.bio}
                       onChange={(e) => setSettingsForm({ ...settingsForm, bio: e.target.value })}
-                      className="w-full min-h-[100px] rounded-lg bg-background border-border border p-3 text-sm focus:ring-1 focus:ring-zinc-300 focus:outline-none"
+                      className="w-full min-h-[100px] rounded-lg bg-background border-border border p-3 text-sm focus:ring-1 focus:ring-ring focus:outline-none"
                       placeholder="Tell us about your business..."
                     />
                   </div>
@@ -799,7 +799,7 @@ export default function Dashboard() {
 
                 <div className="pt-6 border-t border-border flex justify-end gap-3">
                   <Button type="button" variant="outline" className="h-10 px-4 rounded-lg text-sm font-medium border-border hover:bg-muted">Cancel</Button>
-                  <Button type="submit" className="h-10 px-6 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-zinc-800">Save Changes</Button>
+                  <Button type="submit" className="h-10 px-6 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90">Save Changes</Button>
                 </div>
               </form>
             </Card>
@@ -834,13 +834,13 @@ export default function Dashboard() {
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" className="h-10 px-4 rounded-lg text-sm font-medium border-border hover:bg-muted">Filter</Button>
-                <Button className="h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-zinc-800">Search</Button>
+                <Button className="h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90">Search</Button>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {providers.length === 0 ? (
-                <div className="col-span-full py-16 text-center bg-white rounded-xl border border-border">
+                <div className="col-span-full py-16 text-center bg-card rounded-xl border border-border">
                   <div className="h-12 w-12 rounded-full bg-background flex items-center justify-center mx-auto mb-4 border border-border text-muted-foreground">
                     <Users className="h-6 w-6" />
                   </div>
@@ -849,7 +849,7 @@ export default function Dashboard() {
                 </div>
               ) : (
                 providers.map((provider) => (
-                  <Card key={provider.id} className="p-6 border border-border  bg-white rounded-xl flex flex-col">
+                  <Card key={provider.id} className="p-6 border border-border  bg-card rounded-xl flex flex-col">
                     <div className="flex items-start gap-4 mb-6">
                       <div className="h-12 w-12 rounded-full bg-background flex items-center justify-center text-muted-foreground shrink-0 overflow-hidden border border-border">
                         {provider.photo_url ? <img src={provider.photo_url} alt="" className="h-full w-full object-cover" /> : <Users className="h-6 w-6" />}
@@ -882,7 +882,7 @@ export default function Dashboard() {
                         </Button>
                         <Button 
                           onClick={() => setSelectedProviderForMessage(provider)}
-                          className="flex-1 h-9 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-zinc-800"
+                          className="flex-1 h-9 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90"
                         >
                           Message
                         </Button>
@@ -904,7 +904,7 @@ export default function Dashboard() {
               </div>
               <Button 
                 onClick={() => setIsCreatingProject(true)} 
-                className="h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-zinc-800"
+                className="h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 New Project
@@ -912,7 +912,7 @@ export default function Dashboard() {
             </div>
 
             {isCreatingProject && (
-              <Card className="p-6 border border-border  bg-white rounded-xl relative">
+              <Card className="p-6 border border-border  bg-card rounded-xl relative">
                 <div className="absolute top-4 right-4">
                   <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" onClick={() => {
                     setIsCreatingProject(false);
@@ -928,38 +928,38 @@ export default function Dashboard() {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-xs font-semibold text-zinc-700 uppercase tracking-wider">Project Title</label>
+                      <label className="text-xs font-semibold text-foreground uppercase tracking-wider">Project Title</label>
                       <Input 
                         required
                         value={newProject.title}
                         onChange={(e) => setNewProject({ ...newProject, title: e.target.value })}
                         placeholder="e.g. System Integration"
-                        className="h-10 rounded-lg bg-background border-border focus:ring-1 focus:ring-zinc-300 text-sm"
+                        className="h-10 rounded-lg bg-background border-border focus:ring-1 focus:ring-ring text-sm"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-semibold text-zinc-700 uppercase tracking-wider">Budget</label>
+                      <label className="text-xs font-semibold text-foreground uppercase tracking-wider">Budget</label>
                       <Input 
                         required
                         value={newProject.value}
                         onChange={(e) => setNewProject({ ...newProject, value: e.target.value })}
                         placeholder="e.g. $10,000"
-                        className="h-10 rounded-lg bg-background border-border focus:ring-1 focus:ring-zinc-300 text-sm"
+                        className="h-10 rounded-lg bg-background border-border focus:ring-1 focus:ring-ring text-sm"
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-zinc-700 uppercase tracking-wider">Project Description</label>
+                    <label className="text-xs font-semibold text-foreground uppercase tracking-wider">Project Description</label>
                     <textarea 
                       required
-                      className="w-full min-h-[150px] rounded-lg border border-border bg-background p-3 text-sm focus:outline-none focus:ring-1 focus:ring-zinc-300"
+                      className="w-full min-h-[150px] rounded-lg border border-border bg-background p-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
                       value={newProject.needs}
                       onChange={(e) => setNewProject({ ...newProject, needs: e.target.value })}
                       placeholder="Describe the requirements and scope..."
                     />
                   </div>
                   <div className="flex justify-end">
-                    <Button type="submit" className="h-10 px-6 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-zinc-800">
+                    <Button type="submit" className="h-10 px-6 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90">
                       {editingProject ? 'Save Changes' : 'Create Project'}
                     </Button>
                   </div>
@@ -976,7 +976,7 @@ export default function Dashboard() {
               ].map((stat, i) => (
                 <Card key={i} className={cn(
                   "p-10 border-none  transition-all duration-500 hover: group rounded-xl relative overflow-hidden",
-                  stat.color === 'zinc' ? "bg-white" : 
+                  stat.color === 'zinc' ? "bg-card" : 
                   stat.color === 'amber' ? "bg-amber-50/30" : "bg-emerald-50/30"
                 )}>
                   <div className="flex items-center justify-between mb-8">
@@ -1000,18 +1000,18 @@ export default function Dashboard() {
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
-              <Card className="p-0 overflow-hidden border-none  bg-white rounded-xl border border-border">
-                <div className="border-b border-border bg-white px-12 py-10 flex items-center justify-between">
+              <Card className="p-0 overflow-hidden border-none  bg-card rounded-xl border border-border">
+                <div className="border-b border-border bg-card px-12 py-10 flex items-center justify-between">
                   <div>
                     <h3 className="text-3xl font-bold text-foreground tracking-tighter">Vetting Queue</h3>
                     <p className="text-sm text-muted-foreground mt-2">{vettingApps.length} pending requests</p>
                   </div>
                 </div>
-                <div className="divide-y divide-zinc-50">
+                <div className="divide-y divide-border">
                   {vettingApps.length === 0 ? (
                     <div className="px-12 py-32 text-center">
                       <div className="h-24 w-24 rounded-full bg-background flex items-center justify-center mx-auto mb-8 ">
-                        <ShieldCheck className="h-12 w-12 text-zinc-200" />
+                        <ShieldCheck className="h-12 w-12 text-muted-foreground" />
                       </div>
                       <p className="text-muted-foreground font-bold uppercase tracking-widest text-sm italic">Queue is currently empty.</p>
                     </div>
@@ -1052,14 +1052,14 @@ export default function Dashboard() {
                 </div>
               </Card>
 
-              <Card className="p-0 overflow-hidden border-none  bg-white rounded-xl border border-border">
-                <div className="border-b border-border bg-white px-12 py-10 flex items-center justify-between">
+              <Card className="p-0 overflow-hidden border-none  bg-card rounded-xl border border-border">
+                <div className="border-b border-border bg-card px-12 py-10 flex items-center justify-between">
                   <div>
                     <h3 className="text-3xl font-bold text-foreground tracking-tighter">User Directory</h3>
                     <p className="text-sm text-muted-foreground mt-2">{allUsers.length} Total Users</p>
                   </div>
                 </div>
-                <div className="divide-y divide-zinc-50">
+                <div className="divide-y divide-border">
                   {allUsers.map((user) => (
                     <div key={user.id} className="flex items-center justify-between px-12 py-10 hover:bg-muted/50 transition-all group">
                       <div className="flex items-center gap-8">
@@ -1076,14 +1076,14 @@ export default function Dashboard() {
                           <select 
                             value={user.role}
                             onChange={(e) => handleUpdateUserRole(user.id, e.target.value)}
-                            className="h-14 rounded-2xl border-none bg-muted px-8 text-xs font-bold uppercase tracking-wider focus:ring-2 focus:ring-zinc-900/10 appearance-none cursor-pointer pr-12"
+                            className="h-14 rounded-2xl border-none bg-muted px-8 text-xs font-bold uppercase tracking-wider focus:ring-2 focus:ring-ring/50 appearance-none cursor-pointer pr-12"
                           >
                             <option value="client">Client</option>
                             <option value="provider">Provider</option>
                             <option value="admin">Admin</option>
                           </select>
                           <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                            <div className="h-1.5 w-1.5 rounded-full bg-zinc-400" />
+                            <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
                           </div>
                         </div>
                         <button
@@ -1112,18 +1112,18 @@ export default function Dashboard() {
               </Card>
             </div>
 
-            <Card className="p-0 overflow-hidden border-none  bg-white rounded-xl border border-border">
-              <div className="border-b border-border bg-white px-12 py-10 flex items-center justify-between">
+            <Card className="p-0 overflow-hidden border-none  bg-card rounded-xl border border-border">
+              <div className="border-b border-border bg-card px-12 py-10 flex items-center justify-between">
                 <div>
                   <h3 className="text-3xl font-bold text-foreground tracking-tighter">All Projects</h3>
                   <p className="text-sm text-muted-foreground mt-2">{projects.length} Active Projects</p>
                 </div>
               </div>
-              <div className="divide-y divide-zinc-50">
+              <div className="divide-y divide-border">
                 {projects.length === 0 ? (
                   <div className="px-12 py-32 text-center">
                     <div className="h-24 w-24 rounded-full bg-background flex items-center justify-center mx-auto mb-8 ">
-                      <Briefcase className="h-12 w-12 text-zinc-200" />
+                      <Briefcase className="h-12 w-12 text-muted-foreground" />
                     </div>
                     <p className="text-muted-foreground font-bold uppercase tracking-widest text-sm italic">Registry is currently empty.</p>
                   </div>
@@ -1134,7 +1134,7 @@ export default function Dashboard() {
                         <div className={cn(
                           "flex h-20 w-20 items-center justify-center rounded-lg  transition-all duration-500 group-hover:scale-110 group-hover:rotate-3",
                           project.status === 'active' ? "bg-emerald-500 text-primary-foreground " : 
-                          project.status === 'in-review' ? "bg-amber-500 text-primary-foreground " : "bg-primary text-primary-foreground shadow-zinc-900/20"
+                          project.status === 'in-review' ? "bg-amber-500 text-primary-foreground " : "bg-primary text-primary-foreground "
                         )}>
                           <Briefcase className="h-10 w-10" />
                         </div>
@@ -1161,7 +1161,7 @@ export default function Dashboard() {
                         <div className="flex items-center gap-4">
                           <Button 
                             variant="outline" 
-                            className="h-16 w-16 p-0 rounded-lg border-border hover:border-zinc-900 hover:bg-primary hover:text-primary-foreground transition-all  active:scale-90"
+                            className="h-16 w-16 p-0 rounded-lg border-border hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all  active:scale-90"
                             onClick={() => startEditingProject(project)}
                           >
                             <Edit className="h-7 w-7" />
@@ -1221,7 +1221,7 @@ export default function Dashboard() {
             <h3 className="text-lg font-bold text-foreground mb-2">{errorModal.title}</h3>
             <p className="text-muted-foreground text-sm mb-6">{errorModal.message}</p>
             <Button 
-              className="w-full h-10 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-zinc-800"
+              className="w-full h-10 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
               onClick={() => setErrorModal(prev => ({ ...prev, show: false }))}
             >
               Dismiss
@@ -1238,14 +1238,14 @@ export default function Dashboard() {
               variant="ghost" 
               size="icon" 
               onClick={() => setSelectedProviderForProfile(null)}
-              className="absolute top-4 right-4 z-10 rounded-full bg-white  border border-border hover:bg-muted"
+              className="absolute top-4 right-4 z-10 rounded-full bg-card  border border-border hover:bg-muted"
             >
               <X className="h-4 w-4" />
             </Button>
             <div className="p-6 md:p-8">
               {loadingProfile ? (
                 <div className="flex h-64 items-center justify-center">
-                  <div className="h-8 w-8 border-2 border-zinc-900 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                 </div>
               ) : (
                 <ProviderProfileContent 
@@ -1266,7 +1266,7 @@ export default function Dashboard() {
       {/* Messaging Modal */}
       {selectedProviderForMessage && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-4xl bg-white rounded-xl  border border-border overflow-hidden">
+          <div className="relative w-full max-w-4xl bg-card rounded-xl  border border-border overflow-hidden">
             <MessagingSystem 
               recipientId={selectedProviderForMessage.id} 
               recipientName={selectedProviderForMessage.display_name || selectedProviderForMessage.email}

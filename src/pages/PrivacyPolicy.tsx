@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground pb-20">
-      <nav className="sticky top-0 z-50 w-full border-b border-border bg-white/80 backdrop-blur-md">
+      <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-4 w-4" />
@@ -26,7 +26,7 @@ export default function PrivacyPolicy() {
           <h1 className="text-4xl font-bold tracking-tight mb-4">Privacy Policy</h1>
           <p className="text-muted-foreground mb-12 italic">Last updated: March 19, 2026</p>
 
-          <div className="prose prose-zinc max-w-none space-y-8">
+          <div className="prose prose-stone max-w-none space-y-8">
             <section>
               <h2 className="text-2xl font-bold mb-4">1. Introduction</h2>
               <p className="text-muted-foreground leading-relaxed">

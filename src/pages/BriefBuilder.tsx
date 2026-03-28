@@ -100,7 +100,7 @@ Phase 3: Scale (Months 7-12)`;
               <div key={s.id} className="flex flex-col items-center gap-2">
                 <div className={cn(
                   "flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-bold transition-colors",
-                  i <= step ? "border-zinc-900 bg-primary text-primary-foreground" : "border-border bg-white text-muted-foreground"
+                  i <= step ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground"
                 )}>
                   {i < step ? <CheckCircle2 className="h-5 w-5" /> : i + 1}
                 </div>
@@ -129,7 +129,7 @@ Phase 3: Scale (Months 7-12)`;
                 {step === 0 && (
                   <>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-zinc-700">Company Name</label>
+                      <label className="text-sm font-medium text-foreground">Company Name</label>
                       <Input 
                         placeholder="e.g. Global Auto Gmbh" 
                         value={formData.companyName}
@@ -137,7 +137,7 @@ Phase 3: Scale (Months 7-12)`;
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-zinc-700">Industry</label>
+                      <label className="text-sm font-medium text-foreground">Industry</label>
                       <Input 
                         placeholder="e.g. Automotive Manufacturing" 
                         value={formData.industry}
@@ -145,7 +145,7 @@ Phase 3: Scale (Months 7-12)`;
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-zinc-700">Target US Location (Optional)</label>
+                      <label className="text-sm font-medium text-foreground">Target US Location (Optional)</label>
                       <Input 
                         placeholder="e.g. Texas, South Carolina" 
                         value={formData.location}
@@ -157,7 +157,7 @@ Phase 3: Scale (Months 7-12)`;
 
                 {step === 1 && (
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-700">Operational Needs</label>
+                    <label className="text-sm font-medium text-foreground">Operational Needs</label>
                     <Textarea 
                       className="min-h-[200px]"
                       placeholder="Describe your needs in detail. e.g. We need to set up a 50-person warehouse in South Carolina, handle local tax nexus, and manage the supply chain for automotive parts." 
@@ -170,8 +170,8 @@ Phase 3: Scale (Months 7-12)`;
 
                 {step === 2 && (
                   <div className="space-y-4">
-                    <div className="prose prose-zinc max-w-none rounded-lg border border-border bg-background p-6">
-                      <pre className="whitespace-pre-wrap font-sans text-sm text-zinc-700 leading-relaxed">
+                    <div className="prose prose-stone max-w-none rounded-lg border border-border bg-background p-6">
+                      <pre className="whitespace-pre-wrap font-sans text-sm text-foreground leading-relaxed">
                         {sow}
                       </pre>
                     </div>

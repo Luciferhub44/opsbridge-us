@@ -93,7 +93,7 @@ export default function ProviderOnboarding({ user, onComplete }: ProviderOnboard
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-primary/90 backdrop-blur-sm p-4">
-      <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden relative">
+      <div className="w-full max-w-2xl bg-card rounded-3xl shadow-2xl overflow-hidden relative">
         <button 
           onClick={onComplete}
           className="absolute top-6 right-6 p-2 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground z-10"
@@ -121,7 +121,7 @@ export default function ProviderOnboarding({ user, onComplete }: ProviderOnboard
               </div>
               <div className="grid gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-zinc-700">Legal Company Name</label>
+                  <label className="text-sm font-semibold text-foreground">Legal Company Name</label>
                   <Input 
                     value={formData.companyName}
                     onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
@@ -130,7 +130,7 @@ export default function ProviderOnboarding({ user, onComplete }: ProviderOnboard
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold text-zinc-700">Primary Industry</label>
+                    <label className="text-sm font-semibold text-foreground">Primary Industry</label>
                     <Input 
                       value={formData.industry}
                       onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
@@ -138,7 +138,7 @@ export default function ProviderOnboarding({ user, onComplete }: ProviderOnboard
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold text-zinc-700">Primary State</label>
+                    <label className="text-sm font-semibold text-foreground">Primary State</label>
                     <Input 
                       value={formData.location}
                       onChange={(e) => setFormData({ ...formData, location: e.target.value })}
@@ -161,7 +161,7 @@ export default function ProviderOnboarding({ user, onComplete }: ProviderOnboard
               </div>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-zinc-700">Employer Identification Number (EIN)</label>
+                  <label className="text-sm font-semibold text-foreground">Employer Identification Number (EIN)</label>
                   <Input 
                     value={formData.ein}
                     onChange={(e) => setFormData({ ...formData, ein: e.target.value })}
@@ -188,18 +188,18 @@ export default function ProviderOnboarding({ user, onComplete }: ProviderOnboard
               </div>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-zinc-700">Public Bio (Visible to Clients)</label>
+                  <label className="text-sm font-semibold text-foreground">Public Bio (Visible to Clients)</label>
                   <textarea 
-                    className="w-full min-h-[80px] rounded-xl border border-border p-4 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900/10"
+                    className="w-full min-h-[80px] rounded-xl border border-border p-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50"
                     value={formData.bio}
                     onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                     placeholder="Briefly describe your business to potential clients..."
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-zinc-700">Operational Details & Expertise (For Vetting)</label>
+                  <label className="text-sm font-semibold text-foreground">Operational Details & Expertise (For Vetting)</label>
                   <textarea 
-                    className="w-full min-h-[120px] rounded-xl border border-border p-4 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900/10"
+                    className="w-full min-h-[120px] rounded-xl border border-border p-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50"
                     value={formData.operationalDetails}
                     onChange={(e) => setFormData({ ...formData, operationalDetails: e.target.value })}
                     placeholder="Describe your facilities, team size, and specific US regulatory experience..."

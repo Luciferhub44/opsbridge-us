@@ -80,13 +80,13 @@ export default function Documents() {
 
   return (
     <div className="space-y-6 max-w-5xl">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-xl border border-border">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-card p-8 rounded-xl border border-border">
         <div>
           <h2 className="text-2xl font-bold text-foreground">Secure Documents</h2>
           <p className="text-muted-foreground mt-2 font-medium">A secure place to store and manage your important US business files.</p>
         </div>
         <Button 
-          className="gap-2 h-11 px-6 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-zinc-800 transition-colors" 
+          className="gap-2 h-11 px-6 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors" 
           onClick={handleUpload} 
           disabled={uploading}
         >
@@ -97,7 +97,7 @@ export default function Documents() {
 
       <Card className="p-8 bg-primary text-primary-foreground border-none rounded-xl relative overflow-hidden flex flex-col justify-between">
         <div className="relative z-10">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/10 mb-6">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-foreground/10 mb-6">
             <Lock className="h-6 w-6 text-primary-foreground" />
           </div>
           <div>
@@ -110,22 +110,22 @@ export default function Documents() {
         </div>
       </Card>
 
-      <Card className="overflow-hidden border border-border bg-white rounded-xl shadow-none">
+      <Card className="overflow-hidden border border-border bg-card rounded-xl shadow-none">
         <div className="border-b border-border bg-background/50 px-8 py-6 flex items-center justify-between">
           <div>
             <h3 className="text-lg font-bold text-foreground">Document Repository</h3>
             <p className="text-sm text-muted-foreground mt-1">Your uploaded business files</p>
           </div>
         </div>
-        <div className="divide-y divide-zinc-100">
+        <div className="divide-y divide-border">
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-zinc-300" />
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
           ) : documents.length === 0 ? (
             <div className="px-8 py-20 text-center flex flex-col items-center">
               <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                <FileText className="h-8 w-8 text-zinc-300" />
+                <FileText className="h-8 w-8 text-muted-foreground" />
               </div>
               <h4 className="text-lg font-bold text-foreground mb-1">No documents yet</h4>
               <p className="text-muted-foreground text-sm">Upload your first document to get started.</p>

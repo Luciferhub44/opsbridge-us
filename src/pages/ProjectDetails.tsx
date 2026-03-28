@@ -176,7 +176,7 @@ export default function ProjectDetails() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <nav className="sticky top-0 z-10 border-b border-border bg-white/80 backdrop-blur-md">
+      <nav className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-md">
         <div className="mx-auto max-w-7xl px-6 py-4">
           <div className="flex items-center justify-between">
             <Link to="/dashboard" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
@@ -218,12 +218,12 @@ export default function ProjectDetails() {
               </div>
             </section>
 
-            <Card className="p-8 border border-border  bg-white rounded-xl">
+            <Card className="p-8 border border-border  bg-card rounded-xl">
               <h2 className="text-lg font-bold text-foreground mb-6 flex items-center gap-2">
                 <FileText className="h-5 w-5 text-muted-foreground" />
                 Project Description
               </h2>
-              <div className="prose prose-zinc max-w-none text-sm">
+              <div className="prose prose-stone max-w-none text-sm">
                 <Markdown>{project.sow}</Markdown>
               </div>
             </Card>
@@ -241,7 +241,7 @@ export default function ProjectDetails() {
                     </Card>
                   ) : (
                     applications.map((app) => (
-                      <Card key={app.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 border border-border  bg-white rounded-xl gap-4">
+                      <Card key={app.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 border border-border  bg-card rounded-xl gap-4">
                         <div className="flex items-center gap-4">
                           <div className="h-10 w-10 rounded-full bg-background flex items-center justify-center text-muted-foreground border border-border shrink-0">
                             <Users className="h-5 w-5" />
@@ -260,7 +260,7 @@ export default function ProjectDetails() {
                             {app.status}
                           </div>
                           {isOwner && app.status === 'pending' && project.status === 'in-review' && (
-                            <Button size="sm" className="h-8 px-4 text-xs bg-primary text-primary-foreground hover:bg-zinc-800" onClick={() => handleAcceptApplication(app)}>Accept</Button>
+                            <Button size="sm" className="h-8 px-4 text-xs bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => handleAcceptApplication(app)}>Accept</Button>
                           )}
                         </div>
                       </Card>
@@ -274,7 +274,7 @@ export default function ProjectDetails() {
           {/* Right Column: Actions */}
           <div className="space-y-6">
             {profile?.role === 'provider' && profile.is_verified && !isOwner && (
-              <Card className="p-6 sticky top-24 border border-border  rounded-xl bg-white">
+              <Card className="p-6 sticky top-24 border border-border  rounded-xl bg-card">
                 <h3 className="text-base font-bold text-foreground mb-4">Apply for Project</h3>
                 {userHasApplied ? (
                   <div className="flex flex-col items-center gap-3 py-6 text-center">
@@ -297,10 +297,10 @@ export default function ProjectDetails() {
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder="Explain why you're a good fit..."
-                        className="w-full h-32 rounded-lg border border-border bg-background p-3 text-sm focus:outline-none focus:ring-1 focus:ring-zinc-300 resize-none"
+                        className="w-full h-32 rounded-lg border border-border bg-background p-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none"
                       />
                     </div>
-                    <Button type="submit" className="w-full gap-2 h-10 rounded-lg bg-primary text-primary-foreground hover:bg-zinc-800" disabled={applying}>
+                    <Button type="submit" className="w-full gap-2 h-10 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90" disabled={applying}>
                       {applying ? <Clock className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                       Submit Application
                     </Button>
@@ -310,7 +310,7 @@ export default function ProjectDetails() {
             )}
 
             {isOwner && (
-              <Card className="p-6 bg-white border border-border  rounded-xl sticky top-24">
+              <Card className="p-6 bg-card border border-border  rounded-xl sticky top-24">
                 <h3 className="text-base font-bold text-foreground mb-4">Project Controls</h3>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between text-sm">
@@ -322,10 +322,10 @@ export default function ProjectDetails() {
                     <span className="font-medium text-foreground">{applications.length}</span>
                   </div>
                   <div className="h-px bg-muted my-4" />
-                  <Button variant="outline" className="w-full border-border text-zinc-700 hover:bg-background rounded-lg h-10 text-sm">
+                  <Button variant="outline" className="w-full border-border text-foreground hover:bg-background rounded-lg h-10 text-sm">
                     Edit Project
                   </Button>
-                  <Button className="w-full bg-primary text-primary-foreground hover:bg-zinc-800 rounded-lg h-10 text-sm">
+                  <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg h-10 text-sm">
                     Close Project
                   </Button>
                 </div>

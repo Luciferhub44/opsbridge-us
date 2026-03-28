@@ -25,7 +25,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
       {/* Navigation */}
-      <nav className="fixed top-0 z-50 w-full border-bottom border-border bg-white/80 backdrop-blur-md">
+      <nav className="fixed top-0 z-50 w-full border-bottom border-border bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded bg-primary text-primary-foreground font-bold">O</div>
@@ -48,7 +48,7 @@ export default function LandingPage() {
       <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-white px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm">
               <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
               Now Onboarding Elite US Operational Partners
             </div>
@@ -69,7 +69,7 @@ export default function LandingPage() {
               <div className="flex items-center gap-4 px-4">
                 <div className="flex -space-x-2">
                   {[1,2,3].map(i => (
-                    <div key={i} className="h-10 w-10 rounded-full border-2 border-white bg-border overflow-hidden">
+                    <div key={i} className="h-10 w-10 rounded-full border-2 border-background bg-border overflow-hidden">
                       <img src={`https://picsum.photos/seed/user${i}/100/100`} alt="User" referrerPolicy="no-referrer" />
                     </div>
                   ))}
@@ -83,11 +83,11 @@ export default function LandingPage() {
         </div>
         
         {/* Background Accent */}
-        <div className="absolute top-0 right-0 -z-10 h-full w-1/2 bg-gradient-to-l from-zinc-100/50 to-transparent pointer-events-none" />
+        <div className="absolute top-0 right-0 -z-10 h-full w-1/2 bg-gradient-to-l from-muted/50 to-transparent pointer-events-none" />
       </section>
 
       {/* Trust Section */}
-      <section className="border-y border-border bg-white py-20">
+      <section className="border-y border-border bg-card py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground mb-8">Trusted by Global Entities</h2>
@@ -166,7 +166,7 @@ export default function LandingPage() {
               },
             ].map((feature, i) => (
               <div key={i} className="group">
-                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 text-primary-foreground transition-transform group-hover:scale-110 border border-white/10">
+                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-foreground/10 text-primary-foreground transition-transform group-hover:scale-110 border border-background/10">
                   <feature.icon className="h-6 w-6" />
                 </div>
                 <h3 className="text-xl font-semibold">{feature.title}</h3>
@@ -178,7 +178,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it Works */}
-      <section id="how-it-works" className="py-24 lg:py-32 bg-white">
+      <section id="how-it-works" className="py-24 lg:py-32 bg-card">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2 className="text-4xl font-bold tracking-tight sm:text-5xl mb-4">How it Works</h2>
@@ -218,7 +218,7 @@ export default function LandingPage() {
                   icon: CreditCard,
                 },
               ].map((item, i) => (
-                <div key={i} className="relative bg-white p-8 rounded-2xl border border-border shadow-sm hover:shadow-md transition-shadow">
+                <div key={i} className="relative bg-card p-8 rounded-2xl border border-border shadow-sm hover:shadow-md transition-shadow">
                   <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-xl">
                     <item.icon className="h-6 w-6" />
                   </div>
@@ -233,7 +233,7 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonial Section */}
-      <section className="py-24 lg:py-32 bg-white">
+      <section className="py-24 lg:py-32 bg-card">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
@@ -256,7 +256,7 @@ export default function LandingPage() {
                   }
                 ].map((testimonial, i) => (
                   <div key={i} className="p-8 rounded-2xl bg-background border border-border">
-                    <p className="text-xl text-zinc-700 italic mb-6">"{testimonial.quote}"</p>
+                    <p className="text-xl text-foreground italic mb-6">"{testimonial.quote}"</p>
                     <div className="flex items-center gap-4">
                       <img src={testimonial.image} alt={testimonial.author} className="h-12 w-12 rounded-full grayscale" referrerPolicy="no-referrer" />
                       <div>
@@ -320,7 +320,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-white py-12">
+      <footer className="border-t border-border bg-card py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div className="flex items-center gap-2">

@@ -84,7 +84,7 @@ export default function ResetPasswordPage() {
             )}
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-700">New Password</label>
+              <label className="text-sm font-medium text-foreground">New Password</label>
               <Input
                 type="password"
                 placeholder="••••••••"
