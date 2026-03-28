@@ -143,6 +143,8 @@ export default function ProjectDetails() {
 
       setMessage('');
       
+      toast.success("Your application has been submitted successfully!");
+      
       // Re-fetch to update state immediately
       const { data: newApps } = await supabase
         .from('project_applications')
@@ -153,8 +155,9 @@ export default function ProjectDetails() {
         setApplications(newApps);
       }
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error applying for project:', error);
+      toast.error(error.message || 'Failed to submit application. Please try again.');
     } finally {
       setApplying(false);
     }
