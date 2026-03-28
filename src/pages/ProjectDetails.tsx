@@ -89,8 +89,24 @@ export default function ProjectDetails() {
       )
       .subscribe();
 
+    const appsChannel = supabase
+      .channel(`project_apps_realtime_${id}`)
+      .on('postgres_changes', 
+        { 
+          event: 'INSERT', 
+          schema: 'public', 
+          table: 'project_applications',
+          filter: `project_id=eq.${id}`
+        }, 
+        (payload) => {
+          setApplications(prev => [...prev, payload.new]);
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(channel);
+      supabase.removeChannel(appsChannel);
     };
   }, [id, navigate]);
 
