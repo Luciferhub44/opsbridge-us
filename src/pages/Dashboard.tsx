@@ -34,6 +34,8 @@ import ProviderOnboarding from '@/components/onboarding/ProviderOnboarding';
 import { Input } from '@/components/ui/input';
 import MessagingSystem from '@/components/messaging/MessagingSystem';
 import { ProviderProfileContent } from './ProviderProfile';
+import Tasks from '@/components/dashboard/Tasks';
+import { CheckCircle2 as TasksIcon } from 'lucide-react';
 
 import logoUrl from '../assets/logo.svg';
 
@@ -613,6 +615,7 @@ export default function Dashboard() {
             {[
               { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
               { id: 'projects', label: 'Projects', icon: Briefcase },
+              { id: 'tasks', label: 'Tasks', icon: TasksIcon },
               { 
                 id: 'messages', 
                 label: 'Messages', 
@@ -943,6 +946,10 @@ export default function Dashboard() {
               </div>
             </Card>
           </div>
+        )}
+
+        {activeTab === 'tasks' && (
+          <Tasks />
         )}
 
         {activeTab === 'messages' && (

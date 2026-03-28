@@ -52,7 +52,7 @@ export default function ProjectDetails() {
 
         const { data: appsData, error: appsError } = await supabase
           .from('project_applications')
-          .select('*')
+          .select('*, provider:profiles!project_applications_provider_id_fkey(display_name, company_name, photo_url)')
           .eq('project_id', id);
 
         if (!appsError && appsData) {
@@ -80,7 +80,7 @@ export default function ProjectDetails() {
           // Re-fetch applications on change
           supabase
             .from('project_applications')
-            .select('*')
+            .select('*, provider:profiles!project_applications_provider_id_fkey(display_name, company_name, photo_url)')
             .eq('project_id', id)
             .then(({ data }) => {
               if (data) setApplications(data);
@@ -148,7 +148,7 @@ export default function ProjectDetails() {
       // Re-fetch to update state immediately
       const { data: newApps } = await supabase
         .from('project_applications')
-        .select('*')
+        .select('*, provider:profiles!project_applications_provider_id_fkey(display_name, company_name, photo_url)')
         .eq('project_id', id);
         
       if (newApps) {
@@ -221,7 +221,7 @@ export default function ProjectDetails() {
       const { data: projectData } = await supabase.from('projects').select('*').eq('id', id).single();
       if (projectData) setProject(projectData);
       
-      const { data: appsData } = await supabase.from('project_applications').select('*').eq('project_id', id);
+      const { data: appsData } = await supabase.from('project_applications').select('*, provider:profiles!project_applications_provider_id_fkey(display_name, company_name, photo_url)').eq('project_id', id);
       if (appsData) setApplications(appsData);
 
     } catch (error) {
@@ -320,13 +320,24 @@ export default function ProjectDetails() {
                     applications.map((app) => (
                       <Card key={app.id} className="flex flex-col sm:flex-row sm:items-start justify-between p-6 border border-border bg-card rounded-2xl gap-4 shadow-sm hover:border-primary/30 transition-colors group">
                         <div className="flex items-start gap-4 flex-1">
-                          <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shrink-0">
-                            <Users className="h-6 w-6" />
-                          </div>
+                          {app.provider?.photo_url ? (
+                            <img src={app.provider.photo_url} alt="Provider Avatar" className="h-12 w-12 rounded-xl object-cover shrink-0 border border-border" />
+                          ) : (
+                            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shrink-0">
+                              <Users className="h-6 w-6" />
+                            </div>
+                          )}
                           <div className="flex-1">
-                            <div className="font-bold text-foreground text-base">Provider #{app.provider_id.slice(0, 5)}</div>
+                            <div className="font-bold text-foreground text-base">
+                              {app.provider?.display_name || app.provider?.email || `Provider #${app.provider_id.slice(0, 5)}`}
+                            </div>
+                            {app.provider?.company_name && (
+                              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-0.5">
+                                {app.provider.company_name}
+                              </div>
+                            )}
                             <div className="text-sm text-muted-foreground mt-2 bg-muted/30 p-3 rounded-xl border border-border leading-relaxed">
-                              {app.message}
+                              {app.message || 'No additional message provided.'}
                             </div>
                           </div>
                         </div>
