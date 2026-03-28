@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   LayoutDashboard, 
   Briefcase, 
@@ -16,7 +16,10 @@ import {
   Trash2,
   Edit,
   X,
-  MessageSquare
+  MessageSquare,
+  Camera,
+  User,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -60,6 +63,9 @@ export default function Dashboard() {
     location: '',
     bio: ''
   });
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
@@ -149,6 +155,7 @@ export default function Dashboard() {
   const handleUpdateSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile) return;
+    setIsSavingSettings(true);
     try {
       const { error } = await supabase
         .from('profiles')
@@ -166,6 +173,51 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Error updating settings:", error);
       toast.error('Failed to update settings');
+    } finally {
+      setIsSavingSettings(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size must be less than 5MB');
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${profile.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ photo_url: publicUrl })
+        .eq('id', profile.id);
+
+      if (updateError) throw updateError;
+      
+      toast.success('Profile picture updated!');
+      // The context listener might pick this up, but we can force reload to guarantee UI refresh
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (error: any) {
+      console.error('Error uploading avatar:', error);
+      toast.error(error.message || 'Failed to upload avatar');
+    } finally {
+      setIsUploadingAvatar(false);
+      if (avatarInputRef.current) avatarInputRef.current.value = '';
     }
   };
 
@@ -809,98 +861,200 @@ export default function Dashboard() {
         )}
 
         {activeTab === 'settings' && (
-          <div className="max-w-3xl space-y-6">
+          <div className="max-w-5xl space-y-8">
             <div>
-              <h2 className="text-xl font-bold text-foreground">Settings</h2>
-              <p className="text-muted-foreground text-sm mt-0.5">Manage your profile and account preferences.</p>
+              <h2 className="text-2xl font-bold text-foreground">Account Settings</h2>
+              <p className="text-muted-foreground mt-1">Manage your profile, business details, and preferences.</p>
             </div>
 
-            <Card className="p-6 border border-border  bg-card rounded-xl">
-              <form onSubmit={handleUpdateSettings} className="space-y-6">
-                <div className="grid gap-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-foreground uppercase tracking-wider">Name</label>
-                      <Input 
-                        type="text" 
-                        value={settingsForm.displayName}
-                        onChange={(e) => setSettingsForm({ ...settingsForm, displayName: e.target.value })}
-                        className="h-10 rounded-lg bg-background border-border focus:ring-1 focus:ring-ring text-sm"
-                      />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="md:col-span-1 space-y-6">
+                {/* Profile Picture Card */}
+                <Card className="p-6 border border-border bg-card rounded-2xl text-center flex flex-col items-center shadow-sm">
+                  <div className="relative mb-4 group cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
+                    <div className="h-28 w-28 rounded-full overflow-hidden bg-muted border-4 border-background shadow-md relative">
+                       {profile.photo_url ? (
+                         <img src={profile.photo_url} alt="Profile" className="h-full w-full object-cover" />
+                       ) : (
+                         <div className="h-full w-full flex items-center justify-center text-4xl font-bold text-muted-foreground bg-primary/5">
+                            {profile.display_name?.charAt(0) || profile.email?.charAt(0).toUpperCase()}
+                         </div>
+                       )}
+                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                         <Camera className="h-8 w-8 text-white" />
+                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-foreground uppercase tracking-wider">Email</label>
-                      <Input 
-                        type="email" 
-                        disabled
-                        value={profile.email}
-                        className="h-10 rounded-lg bg-background border-border text-muted-foreground text-sm opacity-70"
-                      />
-                    </div>
+                    {isUploadingAvatar && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-background/50 rounded-full">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                      </div>
+                    )}
                   </div>
+                  <h3 className="font-bold text-foreground text-lg">{profile.display_name || 'Your Name'}</h3>
+                  <p className="text-sm text-muted-foreground mt-0.5 capitalize">{profile.role}</p>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-foreground uppercase tracking-wider">Company Name</label>
-                      <Input 
-                        type="text" 
-                        value={settingsForm.companyName}
-                        onChange={(e) => setSettingsForm({ ...settingsForm, companyName: e.target.value })}
-                        className="h-10 rounded-lg bg-background border-border focus:ring-1 focus:ring-ring text-sm"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-foreground uppercase tracking-wider">Industry</label>
-                      <select 
-                        value={settingsForm.industry}
-                        onChange={(e) => setSettingsForm({ ...settingsForm, industry: e.target.value })}
-                        className="w-full h-10 rounded-lg bg-background border-border px-3 text-sm focus:ring-1 focus:ring-ring appearance-none border"
-                      >
-                        <option value="">Select Industry</option>
-                        <option value="Logistics & Supply Chain">Logistics & Supply Chain</option>
-                        <option value="Manufacturing">Manufacturing</option>
-                        <option value="Retail & E-commerce">Retail & E-commerce</option>
-                        <option value="Professional Services">Professional Services</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-xs font-semibold text-foreground uppercase tracking-wider">Bio</label>
-                    <textarea 
-                      value={settingsForm.bio}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, bio: e.target.value })}
-                      className="w-full min-h-[100px] rounded-lg bg-background border-border border p-3 text-sm focus:ring-1 focus:ring-ring focus:outline-none"
-                      placeholder="Tell us about your business..."
-                    />
-                  </div>
-                </div>
-
-                <div className="pt-6 border-t border-border flex justify-end gap-3">
-                  <Button type="button" variant="outline" className="h-10 px-4 rounded-lg text-sm font-medium border-border hover:bg-muted">Cancel</Button>
-                  <Button type="submit" className="h-10 px-6 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90">Save Changes</Button>
-                </div>
-              </form>
-            </Card>
-
-            <Card className="p-6 border border-rose-200  bg-rose-50/50 rounded-xl">
-              <div className="flex items-start gap-4">
-                <div className="h-10 w-10 rounded-lg bg-rose-100 flex items-center justify-center text-rose-600 shrink-0 border border-rose-200">
-                  <Trash2 className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-rose-900 mb-1">Delete Account</h3>
-                  <p className="text-sm text-rose-700 mb-4">Permanently delete your account and all associated data. This action cannot be undone.</p>
+                  <input 
+                    type="file" 
+                    ref={avatarInputRef} 
+                    onChange={handleAvatarUpload} 
+                    className="hidden" 
+                    accept="image/*"
+                  />
                   <Button 
                     variant="outline" 
-                    className="h-9 px-4 rounded-lg text-sm font-medium text-rose-600 hover:bg-rose-100 hover:text-rose-700 border-rose-200"
-                    onClick={handleDeleteAccount}
+                    size="sm" 
+                    className="mt-6 w-full rounded-xl h-10 font-medium"
+                    onClick={() => avatarInputRef.current?.click()}
+                    disabled={isUploadingAvatar}
                   >
-                    Delete Account
+                    Change Picture
                   </Button>
-                </div>
+                </Card>
+
+                {/* Account Status Card */}
+                <Card className="p-6 border border-border bg-card rounded-2xl shadow-sm">
+                  <h3 className="text-xs font-bold text-muted-foreground mb-4 uppercase tracking-wider">Account Status</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-foreground">Verification</span>
+                      <div className={cn(
+                        "flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full border",
+                        profile.is_verified ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-amber-50 text-amber-600 border-amber-100"
+                      )}>
+                        {profile.is_verified ? <CheckCircle2 className="h-3.5 w-3.5" /> : <AlertCircle className="h-3.5 w-3.5" />}
+                        {profile.is_verified ? 'Verified' : 'Pending'}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-foreground">Role</span>
+                      <span className="text-sm font-bold capitalize text-primary bg-primary/10 px-2.5 py-1 rounded-md">{profile.role}</span>
+                    </div>
+                  </div>
+                </Card>
               </div>
-            </Card>
+
+              <div className="md:col-span-2 space-y-6">
+                <Card className="p-0 border border-border bg-card rounded-2xl overflow-hidden shadow-sm">
+                  <div className="px-6 py-5 border-b border-border bg-muted/10">
+                    <h3 className="text-lg font-bold text-foreground">Profile Information</h3>
+                    <p className="text-sm text-muted-foreground mt-0.5">Update your personal and business details here.</p>
+                  </div>
+                  
+                  <form onSubmit={handleUpdateSettings} className="p-6 space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Full Name</label>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input 
+                            type="text" 
+                            value={settingsForm.displayName}
+                            onChange={(e) => setSettingsForm({ ...settingsForm, displayName: e.target.value })}
+                            className="h-11 rounded-xl bg-background border-border pl-10 focus:ring-2 focus:ring-primary/20 text-sm"
+                            placeholder="John Doe"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Email Address</label>
+                        <div className="relative">
+                          <Input 
+                            type="email" 
+                            disabled
+                            value={profile.email}
+                            className="h-11 rounded-xl bg-muted/50 border-border text-muted-foreground text-sm cursor-not-allowed font-medium"
+                          />
+                        </div>
+                        <p className="text-[10px] text-muted-foreground">Email cannot be changed directly.</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Company Name</label>
+                        <div className="relative">
+                          <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input 
+                            type="text" 
+                            value={settingsForm.companyName}
+                            onChange={(e) => setSettingsForm({ ...settingsForm, companyName: e.target.value })}
+                            className="h-11 rounded-xl bg-background border-border pl-10 focus:ring-2 focus:ring-primary/20 text-sm"
+                            placeholder="Acme Corp"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Industry</label>
+                        <select 
+                          value={settingsForm.industry}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, industry: e.target.value })}
+                          className="w-full h-11 rounded-xl bg-background border-border px-4 text-sm focus:ring-2 focus:ring-primary/20 appearance-none outline-none transition-all font-medium"
+                        >
+                          <option value="">Select Industry</option>
+                          <option value="Logistics & Supply Chain">Logistics & Supply Chain</option>
+                          <option value="Manufacturing">Manufacturing</option>
+                          <option value="Retail & E-commerce">Retail & E-commerce</option>
+                          <option value="Professional Services">Professional Services</option>
+                          <option value="Technology">Technology</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Location / HQ</label>
+                      <Input 
+                        type="text" 
+                        value={settingsForm.location}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, location: e.target.value })}
+                        className="h-11 rounded-xl bg-background border-border focus:ring-2 focus:ring-primary/20 text-sm"
+                        placeholder="e.g. New York, NY"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Bio / Description</label>
+                      <textarea 
+                        value={settingsForm.bio}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, bio: e.target.value })}
+                        className="w-full min-h-[120px] rounded-xl bg-background border-border border p-4 text-sm focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all resize-y"
+                        placeholder="Tell us about your business, operations, and goals..."
+                      />
+                    </div>
+
+                    <div className="pt-4 flex justify-end gap-3 border-t border-border mt-6">
+                      <Button type="button" variant="ghost" className="h-11 px-6 rounded-xl text-sm font-medium hover:bg-muted mt-6">Cancel</Button>
+                      <Button type="submit" disabled={isSavingSettings} className="mt-6 h-11 px-8 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 shadow-sm transition-all active:scale-95">
+                        {isSavingSettings ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+                        {isSavingSettings ? 'Saving...' : 'Save Changes'}
+                      </Button>
+                    </div>
+                  </form>
+                </Card>
+
+                <Card className="p-0 border border-rose-200 bg-rose-50/30 rounded-2xl overflow-hidden shadow-sm">
+                   <div className="px-6 py-5 border-b border-rose-100 bg-rose-50/50">
+                    <h3 className="text-lg font-bold text-rose-900 flex items-center gap-2">
+                      <AlertCircle className="h-5 w-5 text-rose-600" />
+                      Danger Zone
+                    </h3>
+                  </div>
+                  <div className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                      <h4 className="text-sm font-bold text-rose-900 mb-1">Delete Account</h4>
+                      <p className="text-sm text-rose-700/80 font-medium">Permanently remove your account and all of its contents from the platform. This action is not reversible.</p>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      className="shrink-0 h-10 px-6 rounded-xl text-sm font-semibold text-rose-600 hover:bg-rose-100 hover:text-rose-700 border-rose-200 transition-colors"
+                      onClick={handleDeleteAccount}
+                    >
+                      Delete Account
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+            </div>
           </div>
         )}
 
