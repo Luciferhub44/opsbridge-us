@@ -20,6 +20,7 @@ import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import Markdown from 'react-markdown';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 export default function ProjectDetails() {
   const { id } = useParams<{ id: string }>();
@@ -125,6 +126,17 @@ export default function ProjectDetails() {
       }
 
       setMessage('');
+      
+      // Re-fetch to update state immediately
+      const { data: newApps } = await supabase
+        .from('project_applications')
+        .select('*')
+        .eq('project_id', id);
+        
+      if (newApps) {
+        setApplications(newApps);
+      }
+      
     } catch (error) {
       console.error('Error applying for project:', error);
     } finally {
@@ -153,7 +165,16 @@ export default function ProjectDetails() {
         
       if (projectError) throw projectError;
 
-      // 3. Trigger notification for provider
+      // 3. Reject other pending applications
+      const { error: rejectError } = await supabase
+        .from('project_applications')
+        .update({ status: 'rejected' })
+        .eq('project_id', id)
+        .eq('status', 'pending');
+
+      if (rejectError) throw rejectError;
+
+      // 4. Trigger notification for accepted provider
       await supabase.from('notifications').insert([
         {
           user_id: app.provider_id,
@@ -162,6 +183,28 @@ export default function ProjectDetails() {
           read: false
         }
       ]);
+
+      // 5. Notify other applicants (optional but good practice)
+      const otherApplicants = applications.filter(a => a.id !== app.id && a.status === 'pending');
+      const notifications = otherApplicants.map(applicant => ({
+        user_id: applicant.provider_id,
+        title: 'Project Update',
+        message: `The project "${project.title}" you applied for has been assigned to another provider.`,
+        read: false
+      }));
+      if (notifications.length > 0) {
+        await supabase.from('notifications').insert(notifications);
+      }
+      
+      toast.success("Application accepted and provider assigned!");
+      
+      // Re-fetch project and apps to update UI
+      const { data: projectData } = await supabase.from('projects').select('*').eq('id', id).single();
+      if (projectData) setProject(projectData);
+      
+      const { data: appsData } = await supabase.from('project_applications').select('*').eq('project_id', id);
+      if (appsData) setApplications(appsData);
+
     } catch (error) {
       console.error('Error accepting application:', error);
     }
