@@ -311,8 +311,14 @@ export default function Dashboard() {
         if (paymentData) {
           setPaymentApprovals(paymentData);
         }
+
+        const { data: allPaymentsData } = await supabase.from('payments').select('*, project:projects(title), client:profiles!payments_client_id_fkey(display_name, company_name), provider:profiles!payments_provider_id_fkey(display_name, company_name)');
+        if (allPaymentsData) {
+          setAllSystemPayments(allPaymentsData);
+        }
       }
     };
+
 
     fetchAdminData();
 
@@ -465,6 +471,25 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Error rejecting payment profile:", error);
       toast.error('Failed to reject payment profile.');
+    }
+  };
+
+  const handleApprovePayout = async (payment: any) => {
+    try {
+      await supabase.from('payments').update({ status: 'completed', updated_at: new Date().toISOString() }).eq('id', payment.id);
+      
+      await supabase.from('notifications').insert([{
+        user_id: payment.provider_id,
+        title: 'Payment Processed',
+        message: `Your payment of ${payment.amount} for project "${payment.project.title}" has been paid out.`,
+        read: false
+      }]);
+
+      toast.success('Payment has been approved and marked as Paid Out.');
+      // The local state will update automatically via the realtime subscription
+    } catch (error) {
+      console.error("Error approving payout:", error);
+      toast.error('Failed to approve payout.');
     }
   };
 
@@ -1568,7 +1593,74 @@ export default function Dashboard() {
                   )}
                 </div>
               </Card>
+
+              <Card className="flex flex-col border border-border bg-card rounded-xl overflow-hidden xl:col-span-2">
+                <div className="border-b border-border bg-card px-6 py-4 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-foreground">Payout Queue</h3>
+                    <p className="text-sm text-muted-foreground">{allSystemPayments.filter(p => p.status === 'scheduled' && new Date(p.scheduled_date) <= new Date()).length} payments due for approval</p>
+                  </div>
+                </div>
+                <div className="divide-y divide-border overflow-y-auto max-h-[500px]">
+                  {allSystemPayments.filter(p => p.status === 'scheduled' && new Date(p.scheduled_date) <= new Date()).length === 0 ? (
+                    <div className="px-6 py-16 text-center flex flex-col items-center">
+                      <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                        <CheckCircle2 className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                      <p className="text-muted-foreground text-sm">The payout queue is clear.</p>
+                    </div>
+                  ) : (
+                    allSystemPayments.filter(p => p.status === 'scheduled' && new Date(p.scheduled_date) <= new Date()).map((payment) => (
+                      <div key={payment.id} className="flex flex-col md:flex-row md:items-center justify-between px-6 py-4 hover:bg-muted/50 transition-colors gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold text-foreground text-sm">{payment.amount} to {payment.provider?.company_name || payment.provider?.display_name}</div>
+                          <div className="text-xs text-muted-foreground truncate mt-0.5">
+                            From: {payment.client?.company_name || payment.client?.display_name} for "{payment.project?.title}"
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0">
+                          <Button 
+                            size="sm" 
+                            className="h-8 px-3 text-xs bg-primary text-primary-foreground hover:bg-primary/90"
+                            onClick={() => handleApprovePayout(payment)}
+                          >
+                            Approve Payout
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </Card>
             </div>
+
+            <Card className="p-0 overflow-hidden border border-border bg-card rounded-xl shadow-sm mb-6 xl:col-span-2">
+              <div className="border-b border-border bg-card px-6 py-4">
+                 <h3 className="text-lg font-bold text-foreground">System Payments</h3>
+              </div>
+               <div className="divide-y divide-border overflow-y-auto max-h-[600px]">
+                {allSystemPayments.map((payment) => (
+                   <div key={payment.id} className="p-4 hover:bg-muted/30 transition-colors flex items-center justify-between gap-4">
+                     <div className="flex-1 min-w-0">
+                        <div className="font-bold text-foreground text-sm">{payment.amount}</div>
+                        <div className="text-xs text-muted-foreground truncate mt-0.5">
+                           {payment.client?.company_name || payment.client?.display_name} → {payment.provider?.company_name || payment.provider?.display_name}
+                         </div>
+                     </div>
+                     <div className="text-xs text-muted-foreground shrink-0">{payment.project?.title}</div>
+                     <div className="text-xs text-muted-foreground shrink-0">{new Date(payment.scheduled_date).toLocaleDateString()}</div>
+                     <div className={cn(
+                        "px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border",
+                        payment.status === 'completed' ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
+                        payment.status === 'processing' ? "bg-blue-50 text-blue-600 border-blue-200" :
+                        "bg-amber-50 text-amber-600 border-amber-200"
+                      )}>
+                        {payment.status === 'completed' ? 'Paid Out' : payment.status}
+                      </div>
+                   </div>
+                 ))}
+              </div>
+            </Card>
 
             <Card className="p-0 overflow-hidden border border-border bg-card rounded-xl shadow-sm mb-6">
               <div className="border-b border-border bg-card px-6 py-4 flex items-center justify-between">
