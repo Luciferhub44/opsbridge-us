@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { ShieldCheck, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import logoUrl from '../assets/logo.svg';
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('');
@@ -56,7 +57,7 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded bg-primary text-primary-foreground font-bold text-xl">O</div>
+          <img src={logoUrl} alt="Logo" className="h-10 w-10" />
           <span className="text-2xl font-bold tracking-tight">OpsBridge US</span>
         </div>
 

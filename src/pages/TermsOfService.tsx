@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowLeft, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import logoUrl from '../assets/logo.svg';
 
 export default function TermsOfService() {
   return (
@@ -12,7 +13,7 @@ export default function TermsOfService() {
             Back to Home
           </Link>
           <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded bg-primary text-primary-foreground text-xs font-bold">O</div>
+            <img src={logoUrl} alt="Logo" className="h-6 w-6" />
             <span className="text-lg font-semibold tracking-tight">OpsBridge US</span>
           </div>
         </div>

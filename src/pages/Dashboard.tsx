@@ -34,6 +34,8 @@ import { Input } from '@/components/ui/input';
 import MessagingSystem from '@/components/messaging/MessagingSystem';
 import { ProviderProfileContent } from './ProviderProfile';
 
+import logoUrl from '../assets/logo.svg';
+
 export default function Dashboard() {
   const { profile, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -530,7 +532,7 @@ export default function Dashboard() {
       <aside className="w-72 border-r border-border bg-card flex flex-col h-screen sticky top-0">
         <div className="p-8">
           <div className="flex items-center gap-3 mb-12">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold text-xl ">O</div>
+            <img src={logoUrl} alt="OpsBridge Logo" className="h-10 w-10" />
             <span className="text-2xl font-bold tracking-tighter text-foreground">OpsBridge</span>
           </div>
 
