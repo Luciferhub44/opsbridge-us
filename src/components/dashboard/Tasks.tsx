@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,8 +12,12 @@ import {
   AlertCircle,
   Loader2,
   Calendar,
-  ChevronDown,
-  ChevronUp
+  X,
+  MessageSquare,
+  Paperclip,
+  FileText,
+  Send,
+  Download
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '../../context/AuthContext';
@@ -29,13 +33,19 @@ export default function Tasks() {
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [newTask, setNewTask] = useState({ title: '', description: '', dueDate: '' });
   const [savingTask, setSavingTask] = useState(false);
+  
+  // Task Details Modal State
+  const [selectedTask, setSelectedTask] = useState<any | null>(null);
+  const [taskComments, setTaskComments] = useState<any[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!profile) return;
 
     const fetchData = async () => {
       try {
-        // Fetch active projects where user is either client or provider
         let projectsQuery = supabase
           .from('projects')
           .select('id, title, status, client_id, provider_id')
@@ -48,10 +58,8 @@ export default function Tasks() {
         }
 
         const { data: projectsData, error: projectsError } = await projectsQuery;
-        
         if (projectsError) throw projectsError;
         
-        // Filter out projects that haven't been assigned a provider yet
         const assignedProjects = projectsData?.filter(p => p.provider_id) || [];
         setProjects(assignedProjects);
 
@@ -60,7 +68,6 @@ export default function Tasks() {
             setSelectedProjectId(assignedProjects[0].id);
           }
 
-          // Fetch all tasks for these projects
           const projectIds = assignedProjects.map(p => p.id);
           const { data: tasksData, error: tasksError } = await supabase
             .from('project_tasks')
@@ -85,7 +92,7 @@ export default function Tasks() {
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'project_tasks' }, 
         () => {
-          fetchData(); // Simplest way to sync
+          fetchData(); 
         }
       )
       .subscribe();
@@ -94,6 +101,41 @@ export default function Tasks() {
       supabase.removeChannel(channel);
     };
   }, [profile, selectedProjectId]);
+
+  // Fetch comments when a task is selected
+  useEffect(() => {
+    if (!selectedTask) return;
+
+    const fetchComments = async () => {
+      const { data, error } = await supabase
+        .from('task_comments')
+        .select('*, user:profiles(display_name, email, photo_url, role)')
+        .eq('task_id', selectedTask.id)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error("Error fetching comments:", error);
+      } else {
+        setTaskComments(data || []);
+      }
+    };
+
+    fetchComments();
+
+    const channel = supabase
+      .channel(`task_comments_${selectedTask.id}`)
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'task_comments', filter: `task_id=eq.${selectedTask.id}` }, 
+        () => {
+          fetchComments();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedTask?.id]);
 
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,7 +164,6 @@ export default function Tasks() {
       setIsAddingTask(false);
       setNewTask({ title: '', description: '', dueDate: '' });
       
-      // Notify provider
       await supabase.from('notifications').insert([
         {
           user_id: selectedProject.provider_id,
@@ -151,22 +192,26 @@ export default function Tasks() {
       
       setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
       
-      // Optionally notify client if provider completes task
-      if (newStatus === 'completed' && profile?.role === 'provider') {
-        const task = tasks.find(t => t.id === taskId);
-        if (task) {
-          const project = projects.find(p => p.id === task.project_id);
-          await supabase.from('notifications').insert([
-            {
-              user_id: task.client_id,
-              title: 'Task Completed',
-              message: `Task "${task.title}" in project "${project?.title}" has been completed.`,
-              read: false
-            }
-          ]);
-        }
+      // Notify the other party
+      const task = tasks.find(t => t.id === taskId);
+      if (task) {
+        const notifyUserId = profile?.id === task.client_id ? task.provider_id : task.client_id;
+        const project = projects.find(p => p.id === task.project_id);
+        
+        await supabase.from('notifications').insert([
+          {
+            user_id: notifyUserId,
+            title: 'Task Status Updated',
+            message: `Task "${task.title}" is now marked as ${newStatus} in project "${project?.title}".`,
+            read: false
+          }
+        ]);
       }
 
+      // If modal is open for this task, update local state
+      if (selectedTask?.id === taskId) {
+        setSelectedTask(prev => ({ ...prev, status: newStatus }));
+      }
     } catch (error) {
       console.error('Error updating task:', error);
       toast.error('Failed to update task status');
@@ -180,9 +225,105 @@ export default function Tasks() {
       if (error) throw error;
       setTasks(prev => prev.filter(t => t.id !== taskId));
       toast.success('Task deleted');
+      if (selectedTask?.id === taskId) setSelectedTask(null);
     } catch (error) {
       console.error('Error deleting task:', error);
       toast.error('Failed to delete task');
+    }
+  };
+
+  const handleAddComment = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!profile || !selectedTask || !newComment.trim()) return;
+
+    try {
+      const { error } = await supabase.from('task_comments').insert([
+        {
+          task_id: selectedTask.id,
+          user_id: profile.id,
+          content: newComment.trim()
+        }
+      ]);
+
+      if (error) throw error;
+
+      // Notify the other party
+      const notifyUserId = profile.id === selectedTask.client_id ? selectedTask.provider_id : selectedTask.client_id;
+      const project = projects.find(p => p.id === selectedTask.project_id);
+      
+      await supabase.from('notifications').insert([
+        {
+          user_id: notifyUserId,
+          title: 'New Comment on Task',
+          message: `${profile.display_name || 'Someone'} commented on task "${selectedTask.title}" in project "${project?.title}".`,
+          read: false
+        }
+      ]);
+
+      setNewComment('');
+    } catch (error) {
+      console.error("Error adding comment:", error);
+      toast.error("Failed to add comment");
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile || !selectedTask) return;
+
+    if (file.size > 15 * 1024 * 1024) {
+      toast.error('File size must be less than 15MB');
+      return;
+    }
+
+    setUploadingFile(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${selectedTask.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('task_attachments')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('task_attachments')
+        .getPublicUrl(fileName);
+
+      const { error: commentError } = await supabase.from('task_comments').insert([
+        {
+          task_id: selectedTask.id,
+          user_id: profile.id,
+          file_url: publicUrl,
+          file_name: file.name,
+          file_type: fileExt?.toUpperCase() || 'FILE',
+          content: 'Uploaded a file'
+        }
+      ]);
+
+      if (commentError) throw commentError;
+      
+      // Notify the other party
+      const notifyUserId = profile.id === selectedTask.client_id ? selectedTask.provider_id : selectedTask.client_id;
+      const project = projects.find(p => p.id === selectedTask.project_id);
+      
+      await supabase.from('notifications').insert([
+        {
+          user_id: notifyUserId,
+          title: 'File Uploaded to Task',
+          message: `${profile.display_name || 'Someone'} uploaded a file to task "${selectedTask.title}" in project "${project?.title}".`,
+          read: false
+        }
+      ]);
+
+      toast.success('File uploaded successfully!');
+    } catch (error: any) {
+      console.error('Error uploading file:', error);
+      toast.error(error.message || 'Failed to upload file');
+    } finally {
+      setUploadingFile(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -251,7 +392,6 @@ export default function Tasks() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Project Selector Sidebar */}
         <div className="lg:col-span-1 space-y-4">
           <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-2">Active Projects</h3>
           <div className="space-y-2">
@@ -281,7 +421,6 @@ export default function Tasks() {
           </div>
         </div>
 
-        {/* Task List Main Area */}
         <div className="lg:col-span-3 space-y-6">
           {isAddingTask && profile?.role === 'client' && (
             <Card className="p-6 border border-primary/20 bg-primary/5 rounded-2xl shadow-sm relative">
@@ -354,19 +493,25 @@ export default function Tasks() {
                 </div>
               ) : (
                 selectedProjectTasks.map((task) => (
-                  <div key={task.id} className="p-6 hover:bg-muted/30 transition-colors group flex flex-col sm:flex-row gap-4">
+                  <div 
+                    key={task.id} 
+                    className="p-6 hover:bg-muted/30 transition-colors group flex flex-col sm:flex-row gap-4 cursor-pointer"
+                    onClick={() => setSelectedTask(task)}
+                  >
                     <div className="pt-1 shrink-0">
-                      <button
-                        onClick={() => handleUpdateTaskStatus(task.id, task.status === 'completed' ? 'pending' : 'completed')}
+                      <div
                         className={cn(
-                          "h-6 w-6 rounded-full flex items-center justify-center border transition-colors",
+                          "h-6 w-6 rounded-full flex items-center justify-center border",
                           task.status === 'completed' 
                             ? "bg-emerald-500 border-emerald-500 text-white" 
-                            : "bg-background border-border hover:border-primary text-transparent hover:text-primary/30"
+                            : task.status === 'in-progress'
+                            ? "bg-amber-100 border-amber-300 text-amber-600"
+                            : "bg-background border-border text-transparent"
                         )}
                       >
-                        <CheckCircle2 className="h-4 w-4" />
-                      </button>
+                        {task.status === 'completed' && <CheckCircle2 className="h-4 w-4" />}
+                        {task.status === 'in-progress' && <Clock className="h-3 w-3" />}
+                      </div>
                     </div>
                     
                     <div className="flex-1 min-w-0 space-y-2">
@@ -378,29 +523,22 @@ export default function Tasks() {
                           {task.title}
                         </h4>
                         
-                        <div className="flex items-center gap-2 shrink-0">
-                          <select 
-                            value={task.status}
-                            onChange={(e) => handleUpdateTaskStatus(task.id, e.target.value)}
-                            className={cn(
-                              "h-7 rounded-md border px-2 py-0 text-xs font-bold uppercase tracking-wider outline-none appearance-none pr-6 bg-no-repeat",
+                        <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+                          <div className={cn(
+                              "h-7 rounded-md border px-3 py-1 flex items-center text-[10px] font-bold uppercase tracking-wider",
                               task.status === 'completed' ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
                               task.status === 'in-progress' ? "bg-amber-50 text-amber-600 border-amber-200" :
                               "bg-background text-muted-foreground border-border"
-                            )}
-                            style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundPosition: 'right .5rem center', backgroundSize: '.65em auto' }}
-                          >
-                            <option value="pending">Pending</option>
-                            <option value="in-progress">In Progress</option>
-                            <option value="completed">Completed</option>
-                          </select>
+                            )}>
+                            {task.status.replace('-', ' ')}
+                          </div>
 
                           {profile?.role === 'client' && (
                             <Button 
                               variant="ghost" 
                               size="icon" 
                               className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md"
-                              onClick={() => handleDeleteTask(task.id)}
+                              onClick={(e) => { e.stopPropagation(); handleDeleteTask(task.id); }}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -410,7 +548,7 @@ export default function Tasks() {
 
                       {task.description && (
                         <p className={cn(
-                          "text-sm bg-muted/40 p-3 rounded-lg border border-border/50",
+                          "text-sm bg-muted/40 p-3 rounded-lg border border-border/50 line-clamp-2",
                           task.status === 'completed' ? "text-muted-foreground/70" : "text-muted-foreground"
                         )}>
                           {task.description}
@@ -428,8 +566,8 @@ export default function Tasks() {
                           </span>
                         )}
                         <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          Added {new Date(task.created_at).toLocaleDateString()}
+                          <MessageSquare className="h-3 w-3" />
+                          Click to open task details
                         </span>
                       </div>
                     </div>
@@ -440,6 +578,178 @@ export default function Tasks() {
           </Card>
         </div>
       </div>
+
+      {/* Task Details & Comments Modal */}
+      {selectedTask && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <Card className="w-full max-w-3xl h-[85vh] flex flex-col p-0 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden relative">
+            
+            {/* Modal Header */}
+            <div className="flex items-start justify-between p-6 border-b border-border bg-muted/10 shrink-0">
+              <div className="flex-1 min-w-0 pr-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className={cn(
+                    "px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border",
+                    selectedTask.status === 'completed' ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
+                    selectedTask.status === 'in-progress' ? "bg-amber-50 text-amber-600 border-amber-200" :
+                    "bg-background text-muted-foreground border-border"
+                  )}>
+                    {selectedTask.status.replace('-', ' ')}
+                  </div>
+                  {selectedTask.due_date && (
+                    <span className={cn(
+                      "flex items-center gap-1 text-xs font-semibold",
+                      new Date(selectedTask.due_date) < new Date() && selectedTask.status !== 'completed' ? "text-rose-500" : "text-muted-foreground"
+                    )}>
+                      <Calendar className="h-3 w-3" />
+                      Due {new Date(selectedTask.due_date).toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
+                <h3 className="text-xl font-bold text-foreground">{selectedTask.title}</h3>
+                {selectedTask.description && (
+                  <p className="text-sm text-muted-foreground mt-2 leading-relaxed bg-muted/30 p-3 rounded-xl border border-border/50">
+                    {selectedTask.description}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col items-end gap-3 shrink-0">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setSelectedTask(null)}
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/80 rounded-full"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+                <select 
+                  value={selectedTask.status}
+                  onChange={(e) => handleUpdateTaskStatus(selectedTask.id, e.target.value)}
+                  className="h-8 rounded-lg border border-border px-3 text-xs font-bold uppercase tracking-wider outline-none focus:ring-2 focus:ring-primary/20 bg-background hover:bg-muted/50 transition-colors"
+                >
+                  <option value="pending">Mark as Pending</option>
+                  <option value="in-progress">Mark In Progress</option>
+                  <option value="completed">Mark Completed</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Comments Area */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-background">
+              {taskComments.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+                  <MessageSquare className="h-10 w-10 mb-4 opacity-20" />
+                  <p className="text-sm font-medium">No activity yet. Be the first to start the conversation.</p>
+                </div>
+              ) : (
+                taskComments.map(comment => (
+                  <div key={comment.id} className={cn(
+                    "flex gap-4",
+                    comment.user_id === profile?.id ? "flex-row-reverse" : "flex-row"
+                  )}>
+                    <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground overflow-hidden shrink-0 border border-border">
+                      {comment.user?.photo_url ? (
+                        <img src={comment.user.photo_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="text-xs font-bold">{comment.user?.display_name?.charAt(0) || 'U'}</span>
+                      )}
+                    </div>
+                    <div className={cn(
+                      "flex flex-col max-w-[80%]",
+                      comment.user_id === profile?.id ? "items-end" : "items-start"
+                    )}>
+                      <div className="flex items-center gap-2 mb-1 px-1">
+                        <span className="text-xs font-bold text-foreground">
+                          {comment.user?.display_name || comment.user?.email || 'User'}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      
+                      {comment.content && comment.content !== 'Uploaded a file' && (
+                        <div className={cn(
+                          "px-4 py-2.5 rounded-2xl text-sm shadow-sm",
+                          comment.user_id === profile?.id 
+                            ? "bg-primary text-primary-foreground rounded-tr-sm" 
+                            : "bg-muted border border-border text-foreground rounded-tl-sm"
+                        )}>
+                          {comment.content}
+                        </div>
+                      )}
+
+                      {comment.file_url && (
+                        <a 
+                          href={comment.file_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className={cn(
+                            "flex items-center gap-3 mt-1.5 px-4 py-3 rounded-2xl border transition-colors group",
+                            comment.user_id === profile?.id 
+                              ? "bg-primary/10 border-primary/20 hover:bg-primary/20" 
+                              : "bg-background border-border hover:bg-muted"
+                          )}
+                        >
+                          <div className={cn(
+                            "h-8 w-8 rounded-lg flex items-center justify-center shrink-0",
+                            comment.user_id === profile?.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                          )}>
+                            <FileText className="h-4 w-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold truncate group-hover:text-primary transition-colors">{comment.file_name}</p>
+                            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{comment.file_type}</p>
+                          </div>
+                          <Download className="h-4 w-4 ml-2 text-muted-foreground group-hover:text-primary transition-colors" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Input Area */}
+            <div className="p-4 border-t border-border bg-card shrink-0">
+              <form onSubmit={handleAddComment} className="flex items-end gap-3">
+                <input 
+                  type="file" 
+                  ref={fileInputRef}
+                  className="hidden"
+                  onChange={handleFileUpload}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="h-11 w-11 rounded-xl shrink-0 border-border hover:bg-muted"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingFile}
+                >
+                  {uploadingFile ? <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /> : <Paperclip className="h-5 w-5 text-muted-foreground" />}
+                </Button>
+                <div className="flex-1 relative">
+                  <Input 
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Type a message or share an update..."
+                    className="h-11 rounded-xl bg-background border-border pr-12 focus:ring-1 focus:ring-primary shadow-sm"
+                  />
+                  <Button 
+                    type="submit" 
+                    size="icon" 
+                    className="absolute right-1 top-1 h-9 w-9 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
+                    disabled={!newComment.trim() || uploadingFile}
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </form>
+            </div>
+            
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
