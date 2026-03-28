@@ -20,7 +20,8 @@ import {
   Camera,
   User,
   Loader2, DollarSign,
-  FileText
+  FileText,
+  Building2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -35,7 +36,8 @@ import { Input } from '@/components/ui/input';
 import MessagingSystem from '@/components/messaging/MessagingSystem';
 import { ProviderProfileContent } from './ProviderProfile';
 import Tasks from '@/components/dashboard/Tasks';
-import { CheckCircle2 as TasksIcon } from 'lucide-react';
+import Payments from '@/components/dashboard/Payments';
+import { CheckCircle2 as TasksIcon, CreditCard } from 'lucide-react';
 
 import logoUrl from '../assets/logo.svg';
 
@@ -258,6 +260,7 @@ export default function Dashboard() {
   const [vettingApps, setVettingApps] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [allDocuments, setAllDocuments] = useState<any[]>([]);
+  const [paymentApprovals, setPaymentApprovals] = useState<any[]>([]);
   const [isCreatingProject, setIsCreatingProject] = useState(false);
   const [editingProject, setEditingProject] = useState<any>(null);
   const [newProject, setNewProject] = useState({
@@ -301,6 +304,11 @@ export default function Dashboard() {
         const { data: documentsData } = await supabase.from('documents').select('*, owner:profiles(display_name, email)');
         if (documentsData) {
           setAllDocuments(documentsData);
+        }
+
+        const { data: paymentData } = await supabase.from('payment_profiles').select('*, provider:profiles(display_name, company_name, email)').eq('status', 'pending');
+        if (paymentData) {
+          setPaymentApprovals(paymentData);
         }
       }
     };
@@ -418,6 +426,44 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Error rejecting document:", error);
       toast.error('Failed to reject document.');
+    }
+  };
+
+  const handleApprovePayment = async (paymentId: string, providerId: string) => {
+    try {
+      await supabase.from('payment_profiles').update({ status: 'approved' }).eq('id', paymentId);
+      setPaymentApprovals(prev => prev.filter(p => p.id !== paymentId));
+      
+      await supabase.from('notifications').insert([{
+        user_id: providerId,
+        title: 'Payment Profile Approved',
+        message: 'Your banking information has been verified and approved.',
+        read: false
+      }]);
+
+      toast.success('Payment profile approved.');
+    } catch (error) {
+      console.error("Error approving payment profile:", error);
+      toast.error('Failed to approve payment profile.');
+    }
+  };
+
+  const handleRejectPayment = async (paymentId: string, providerId: string) => {
+    try {
+      await supabase.from('payment_profiles').update({ status: 'rejected' }).eq('id', paymentId);
+      setPaymentApprovals(prev => prev.filter(p => p.id !== paymentId));
+      
+      await supabase.from('notifications').insert([{
+        user_id: providerId,
+        title: 'Payment Profile Rejected',
+        message: 'Your payment information requires updates or additional verification.',
+        read: false
+      }]);
+
+      toast.success('Payment profile rejected.');
+    } catch (error) {
+      console.error("Error rejecting payment profile:", error);
+      toast.error('Failed to reject payment profile.');
     }
   };
 
@@ -616,6 +662,7 @@ export default function Dashboard() {
               { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
               { id: 'projects', label: 'Projects', icon: Briefcase },
               { id: 'tasks', label: 'Tasks', icon: TasksIcon },
+              { id: 'payments', label: 'Payments', icon: CreditCard },
               { 
                 id: 'messages', 
                 label: 'Messages', 
@@ -950,6 +997,10 @@ export default function Dashboard() {
 
         {activeTab === 'tasks' && (
           <Tasks />
+        )}
+
+        {activeTab === 'payments' && (
+          <Payments />
         )}
 
         {activeTab === 'messages' && (
@@ -1439,6 +1490,81 @@ export default function Dashboard() {
                       </div>
                     </div>
                   ))}
+                </div>
+              </Card>
+
+              <Card className="flex flex-col border border-border bg-card rounded-xl overflow-hidden xl:col-span-2">
+                <div className="border-b border-border bg-card px-6 py-4 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-foreground">Payment Verifications</h3>
+                    <p className="text-sm text-muted-foreground">{paymentApprovals.length} pending requests</p>
+                  </div>
+                </div>
+                <div className="divide-y divide-border overflow-y-auto max-h-[500px]">
+                  {paymentApprovals.length === 0 ? (
+                    <div className="px-6 py-16 text-center flex flex-col items-center">
+                      <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                        <CreditCard className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                      <p className="text-muted-foreground text-sm">No pending payment verifications.</p>
+                    </div>
+                  ) : (
+                    paymentApprovals.map((approval) => (
+                      <div key={approval.id} className="flex flex-col md:flex-row md:items-center justify-between px-6 py-4 hover:bg-muted/50 transition-colors gap-4">
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0 border border-primary/20">
+                            <Building2 className="h-5 w-5" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-bold text-foreground text-sm truncate">{approval.bank_name}</div>
+                            <div className="text-xs text-muted-foreground truncate mt-0.5">
+                              Provider: {approval.provider?.company_name || approval.provider?.display_name || approval.provider?.email}
+                            </div>
+                            <div className="text-xs font-mono text-muted-foreground mt-1">
+                              Acct: {approval.account_number.slice(-4).padStart(12, '•')} | Routing: {approval.routing_number}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8 px-3 text-xs border-border hover:bg-muted"
+                            onClick={() => {
+                              const fileExt = approval.voided_check_url.split('.').pop()?.toUpperCase() || 'IMAGE';
+                              const docType = ['PNG', 'JPG', 'JPEG'].includes(fileExt) ? fileExt : 
+                                              ['DOC', 'DOCX', 'XLS', 'XLSX'].includes(fileExt) ? fileExt : 'PDF';
+                              
+                              setViewingDocument({
+                                name: `Voided Check - ${approval.provider?.company_name || approval.provider?.display_name || approval.provider?.email}`,
+                                url: approval.voided_check_url,
+                                type: docType
+                              });
+                            }}
+                          >
+                            <ExternalLink className="h-3 w-3 mr-1" /> View Voided Check
+                          </Button>
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              className="h-8 px-3 text-xs bg-primary text-primary-foreground hover:bg-primary/90"
+                              onClick={() => handleApprovePayment(approval.id, approval.provider_id)}
+                            >
+                              Approve
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              className="h-8 px-3 text-xs text-destructive hover:bg-destructive/10"
+                              onClick={() => handleRejectPayment(approval.id, approval.provider_id)}
+                            >
+                              Reject
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </Card>
             </div>
