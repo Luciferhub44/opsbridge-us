@@ -185,9 +185,9 @@ export default function ProjectDetails() {
             </Link>
             <div className="flex items-center gap-4">
               <div className={cn(
-                "rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider border",
-                project.status === 'active' ? "bg-background text-muted-foreground border-border" : 
-                project.status === 'in-review' ? "bg-background text-muted-foreground border-border" : "bg-background text-muted-foreground border-border"
+                "rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider border shadow-sm",
+                project.status === 'active' ? "bg-emerald-50 text-emerald-600 border-emerald-200" : 
+                project.status === 'in-review' ? "bg-amber-50 text-amber-600 border-amber-200" : "bg-muted text-muted-foreground border-border"
               )}>
                 {project.status.replace('-', ' ')}
               </div>
@@ -201,66 +201,84 @@ export default function ProjectDetails() {
           {/* Left Column: Project Info */}
           <div className="lg:col-span-2 space-y-8">
             <section>
-              <h1 className="text-3xl font-bold text-foreground mb-4">{project.title}</h1>
-              <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
+              <h1 className="text-3xl md:text-4xl font-black text-foreground mb-4 tracking-tight">{project.title}</h1>
+              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground font-medium">
+                <div className="flex items-center gap-1.5 bg-muted/50 px-3 py-1.5 rounded-lg border border-border">
+                  <Calendar className="h-4 w-4 text-primary" />
                   {project.created_at ? new Date(project.created_at).toLocaleDateString() : 'Recently created'}
                 </div>
-                <div className="flex items-center gap-2">
-                  <DollarSign className="h-4 w-4" />
-                  Budget: {project.value || 'TBD'}
+                <div className="flex items-center gap-1.5 bg-muted/50 px-3 py-1.5 rounded-lg border border-border">
+                  <DollarSign className="h-4 w-4 text-emerald-500" />
+                  Budget: <span className="text-foreground font-bold">{project.value || 'TBD'}</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-100">
                   <ShieldCheck className="h-4 w-4" />
                   Verified Project
                 </div>
               </div>
             </section>
 
-            <Card className="p-8 border border-border  bg-card rounded-xl">
-              <h2 className="text-lg font-bold text-foreground mb-6 flex items-center gap-2">
-                <FileText className="h-5 w-5 text-muted-foreground" />
-                Project Description
-              </h2>
-              <div className="prose prose-stone max-w-none text-sm">
+            <Card className="p-0 border border-border bg-card rounded-2xl shadow-sm overflow-hidden">
+              <div className="px-6 py-5 border-b border-border bg-muted/20 flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                  <FileText className="h-5 w-5" />
+                </div>
+                <h2 className="text-lg font-bold text-foreground">
+                  Project Description & Scope
+                </h2>
+              </div>
+              <div className="p-8 prose prose-stone max-w-none text-sm dark:prose-invert">
                 <Markdown>{project.sow}</Markdown>
               </div>
             </Card>
 
             {isOwner && (
               <section className="space-y-4">
-                <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-                  <Users className="h-5 w-5 text-muted-foreground" />
-                  Applications ({applications.length})
-                </h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                    <Users className="h-6 w-6 text-primary" />
+                    Applications
+                    <span className="bg-primary text-primary-foreground text-xs px-2.5 py-0.5 rounded-full ml-2">
+                      {applications.length}
+                    </span>
+                  </h2>
+                </div>
+                
                 <div className="grid gap-4">
                   {applications.length === 0 ? (
-                    <Card className="py-12 text-center text-muted-foreground text-sm border border-border  rounded-xl">
-                      No applications yet.
+                    <Card className="py-16 text-center text-muted-foreground text-sm border border-border bg-card/50 rounded-2xl border-dashed">
+                      <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                        <Users className="h-8 w-8 text-muted-foreground/50" />
+                      </div>
+                      <p className="font-medium">No applications yet.</p>
+                      <p className="text-xs mt-1">Providers will appear here once they apply.</p>
                     </Card>
                   ) : (
                     applications.map((app) => (
-                      <Card key={app.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 border border-border  bg-card rounded-xl gap-4">
-                        <div className="flex items-center gap-4">
-                          <div className="h-10 w-10 rounded-full bg-background flex items-center justify-center text-muted-foreground border border-border shrink-0">
-                            <Users className="h-5 w-5" />
+                      <Card key={app.id} className="flex flex-col sm:flex-row sm:items-start justify-between p-6 border border-border bg-card rounded-2xl gap-4 shadow-sm hover:border-primary/30 transition-colors group">
+                        <div className="flex items-start gap-4 flex-1">
+                          <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shrink-0">
+                            <Users className="h-6 w-6" />
                           </div>
-                          <div>
-                            <div className="font-semibold text-foreground text-sm">Provider #{app.provider_id.slice(0, 5)}</div>
-                            <div className="text-xs text-muted-foreground mt-1">{app.message}</div>
+                          <div className="flex-1">
+                            <div className="font-bold text-foreground text-base">Provider #{app.provider_id.slice(0, 5)}</div>
+                            <div className="text-sm text-muted-foreground mt-2 bg-muted/30 p-3 rounded-xl border border-border leading-relaxed">
+                              {app.message}
+                            </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex flex-col items-end gap-3 shrink-0">
                           <div className={cn(
-                            "rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border",
+                            "rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider border shadow-sm",
                             app.status === 'accepted' ? "bg-emerald-50 text-emerald-600 border-emerald-200" : 
                             app.status === 'pending' ? "bg-amber-50 text-amber-600 border-amber-200" : "bg-rose-50 text-rose-600 border-rose-200"
                           )}>
                             {app.status}
                           </div>
                           {isOwner && app.status === 'pending' && project.status === 'in-review' && (
-                            <Button size="sm" className="h-8 px-4 text-xs bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => handleAcceptApplication(app)}>Accept</Button>
+                            <Button size="sm" className="h-9 px-5 rounded-xl text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm" onClick={() => handleAcceptApplication(app)}>
+                              Accept Proposal
+                            </Button>
                           )}
                         </div>
                       </Card>
@@ -274,76 +292,91 @@ export default function ProjectDetails() {
           {/* Right Column: Actions */}
           <div className="space-y-6">
             {profile?.role === 'provider' && profile.is_verified && !isOwner && (
-              <Card className="p-6 sticky top-24 border border-border  rounded-xl bg-card">
-                <h3 className="text-base font-bold text-foreground mb-4">Apply for Project</h3>
-                {userHasApplied ? (
-                  <div className="flex flex-col items-center gap-3 py-6 text-center">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
-                      <CheckCircle2 className="h-5 w-5" />
+              <Card className="p-0 sticky top-24 border border-border rounded-2xl bg-card overflow-hidden shadow-md">
+                <div className="bg-primary p-6 text-primary-foreground">
+                   <h3 className="text-xl font-bold mb-1">Apply for Project</h3>
+                   <p className="text-primary-foreground/80 text-sm font-medium">Submit your proposal to the client.</p>
+                </div>
+                <div className="p-6">
+                  {userHasApplied ? (
+                    <div className="flex flex-col items-center gap-3 py-6 text-center">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 border-4 border-emerald-100">
+                        <CheckCircle2 className="h-8 w-8" />
+                      </div>
+                      <div>
+                        <div className="font-bold text-foreground text-lg">Proposal Submitted</div>
+                        <p className="text-sm text-muted-foreground mt-1 font-medium">The client is reviewing your application. You'll be notified of any updates.</p>
+                      </div>
                     </div>
-                    <div>
-                      <div className="font-semibold text-foreground text-sm">Application Submitted</div>
-                      <p className="text-xs text-muted-foreground mt-1">The client is reviewing your proposal.</p>
-                    </div>
-                  </div>
-                ) : (
-                  <form onSubmit={handleApply} className="space-y-4">
-                    <div>
-                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2 block">
-                        Your Proposal
-                      </label>
-                      <textarea
-                        required
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        placeholder="Explain why you're a good fit..."
-                        className="w-full h-32 rounded-lg border border-border bg-background p-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none"
-                      />
-                    </div>
-                    <Button type="submit" className="w-full gap-2 h-10 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90" disabled={applying}>
-                      {applying ? <Clock className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                      Submit Application
-                    </Button>
-                  </form>
-                )}
+                  ) : (
+                    <form onSubmit={handleApply} className="space-y-5">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
+                          Your Proposal Message
+                        </label>
+                        <textarea
+                          required
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
+                          placeholder="Explain why your business is the perfect fit for this expansion project..."
+                          className="w-full h-40 rounded-xl border border-border bg-background p-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 resize-y transition-all"
+                        />
+                      </div>
+                      <Button type="submit" className="w-full gap-2 h-12 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-bold text-base shadow-sm transition-all active:scale-95" disabled={applying}>
+                        {applying ? <Clock className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+                        {applying ? 'Submitting...' : 'Submit Application'}
+                      </Button>
+                    </form>
+                  )}
+                </div>
               </Card>
             )}
 
             {isOwner && (
-              <Card className="p-6 bg-card border border-border  rounded-xl sticky top-24">
-                <h3 className="text-base font-bold text-foreground mb-4">Project Controls</h3>
-                <div className="space-y-4">
+              <Card className="p-0 bg-card border border-border rounded-2xl sticky top-24 shadow-sm overflow-hidden">
+                <div className="px-6 py-5 border-b border-border bg-muted/20">
+                  <h3 className="text-lg font-bold text-foreground">Project Controls</h3>
+                </div>
+                <div className="p-6 space-y-5">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Status</span>
-                    <span className="font-medium capitalize text-foreground">{project.status}</span>
+                    <span className="text-muted-foreground font-medium">Status</span>
+                    <span className={cn(
+                      "font-bold uppercase tracking-wider text-[10px] px-2 py-1 rounded-md border",
+                      project.status === 'active' ? "bg-emerald-50 text-emerald-600 border-emerald-200" : 
+                      project.status === 'in-review' ? "bg-amber-50 text-amber-600 border-amber-200" : "bg-muted text-muted-foreground border-border"
+                    )}>{project.status.replace('-', ' ')}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Applications</span>
-                    <span className="font-medium text-foreground">{applications.length}</span>
+                    <span className="text-muted-foreground font-medium">Applications Received</span>
+                    <span className="font-bold text-foreground text-base bg-muted px-2 py-0.5 rounded-md">{applications.length}</span>
                   </div>
-                  <div className="h-px bg-muted my-4" />
-                  <Button variant="outline" className="w-full border-border text-foreground hover:bg-background rounded-lg h-10 text-sm">
-                    Edit Project
-                  </Button>
-                  <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg h-10 text-sm">
-                    Close Project
-                  </Button>
+                  <div className="h-px bg-border my-2" />
+                  <div className="space-y-3">
+                    <Button variant="outline" className="w-full border-border text-foreground hover:bg-muted rounded-xl h-11 text-sm font-semibold transition-colors">
+                      Edit Project Details
+                    </Button>
+                    <Button variant="destructive" className="w-full rounded-xl h-11 text-sm font-semibold shadow-sm transition-all active:scale-95">
+                      Close Project
+                    </Button>
+                  </div>
                 </div>
               </Card>
             )}
 
             {!profile?.is_verified && profile?.role === 'provider' && (
-              <Card className="p-6 bg-amber-50 border border-amber-200  rounded-xl">
-                <div className="flex gap-3">
-                  <AlertCircle className="h-5 w-5 text-amber-600 shrink-0" />
+              <Card className="p-6 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-2xl shadow-sm">
+                <div className="flex flex-col gap-4">
+                  <div className="h-12 w-12 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+                    <AlertCircle className="h-6 w-6 text-amber-600" />
+                  </div>
                   <div>
-                    <h4 className="text-sm font-bold text-amber-900">Vetting Required</h4>
-                    <p className="text-xs text-amber-700 mt-1">
-                      You must be verified to apply for projects.
+                    <h4 className="text-lg font-bold text-amber-900 mb-1">Vetting Required</h4>
+                    <p className="text-sm text-amber-700 font-medium leading-relaxed">
+                      You must complete your business verification process before you can submit proposals for high-value projects.
                     </p>
-                    <Link to="/vetting">
-                      <Button size="sm" className="mt-4 bg-amber-600 hover:bg-amber-700 text-primary-foreground rounded-lg px-4 border-none text-xs">
-                        Complete Vetting
+                    <Link to="/vetting" className="inline-block mt-4 w-full">
+                      <Button className="w-full h-11 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold shadow-sm transition-all active:scale-95">
+                        Complete Vetting Process
                       </Button>
                     </Link>
                   </div>

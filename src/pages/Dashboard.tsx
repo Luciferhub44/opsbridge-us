@@ -19,7 +19,7 @@ import {
   MessageSquare,
   Camera,
   User,
-  Loader2
+  Loader2, DollarSign
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -268,9 +268,14 @@ export default function Dashboard() {
 
     const fetchProjects = async () => {
       let query = supabase.from('projects').select('*').order('created_at', { ascending: false });
-      if (profile.role !== 'admin') {
-        query = query.in('status', ['active', 'in-review']);
+      
+      if (profile.role === 'client') {
+        query = query.eq('client_id', profile.id);
+      } else if (profile.role === 'provider') {
+        // Providers see their own projects and open projects they can apply for
+        query = query.or(`provider_id.eq.${profile.id},status.eq.in-review`);
       }
+      
       const { data } = await query;
       if (data) setProjects(data);
     };
@@ -758,16 +763,21 @@ export default function Dashboard() {
         )}
 
         {activeTab === 'projects' && (
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-bold text-foreground">Projects</h2>
-                <p className="text-muted-foreground text-sm mt-0.5">Track and manage your project initiatives.</p>
+          <div className="space-y-6 max-w-6xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card p-6 md:p-8 rounded-2xl border border-border shadow-sm">
+              <div className="flex items-start gap-4">
+                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                  <Briefcase className="h-6 w-6" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground">Projects</h2>
+                  <p className="text-muted-foreground mt-1 font-medium">Track and manage your project initiatives and proposals.</p>
+                </div>
               </div>
               {profile.role === 'client' && (
                 <Link to="/brief-builder">
-                  <Button className="h-10 px-4 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium">
-                    <Plus className="h-4 w-4 mr-2" />
+                  <Button className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all shadow-md active:scale-95 gap-2">
+                    <Plus className="h-5 w-5" />
                     New Project
                   </Button>
                 </Link>
@@ -776,66 +786,83 @@ export default function Dashboard() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
-                { label: 'Active', value: projects.filter(p => p.status === 'active').length, icon: Briefcase, color: 'zinc' },
-                { label: 'In Review', value: projects.filter(p => p.status === 'in-review').length, icon: Clock, color: 'zinc' },
-                { label: 'Completed', value: projects.filter(p => p.status === 'completed').length, icon: CheckCircle2, color: 'zinc' },
+                { label: 'Active Projects', value: projects.filter(p => p.status === 'active').length, icon: Briefcase, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+                { label: 'In Review', value: projects.filter(p => p.status === 'in-review').length, icon: Clock, color: 'text-amber-500', bg: 'bg-amber-50' },
+                { label: 'Completed', value: projects.filter(p => p.status === 'completed').length, icon: CheckCircle2, color: 'text-blue-500', bg: 'bg-blue-50' },
               ].map((stat, i) => (
-                <Card key={i} className="p-6 border border-border  bg-card rounded-xl">
-                  <div className="flex items-center gap-3 mb-3">
-                    <stat.icon className="h-4 w-4 text-muted-foreground" />
-                    <h3 className="text-sm font-medium text-muted-foreground">{stat.label}</h3>
+                <Card key={i} className="p-6 border border-border bg-card rounded-2xl shadow-sm flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-bold text-muted-foreground mb-1">{stat.label}</h3>
+                    <p className="text-3xl font-black text-foreground">{stat.value}</p>
                   </div>
-                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                  <div className={cn("h-14 w-14 rounded-full flex items-center justify-center", stat.bg, stat.color)}>
+                    <stat.icon className="h-7 w-7" />
+                  </div>
                 </Card>
               ))}
             </div>
 
-            <Card className="p-0 overflow-hidden border border-border  bg-card rounded-xl">
+            <Card className="p-0 overflow-hidden border border-border bg-card rounded-2xl shadow-sm">
+              <div className="border-b border-border bg-muted/20 px-6 py-5">
+                <h3 className="text-lg font-bold text-foreground">Project Directory</h3>
+              </div>
               <div className="divide-y divide-border">
                 {projects.length === 0 ? (
-                  <div className="px-6 py-16 text-center">
-                    <div className="h-12 w-12 rounded-full bg-background flex items-center justify-center mx-auto mb-4 border border-border text-muted-foreground">
-                      <Briefcase className="h-6 w-6" />
+                  <div className="px-6 py-24 text-center flex flex-col items-center max-w-sm mx-auto">
+                    <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center mb-6">
+                      <Briefcase className="h-10 w-10 text-muted-foreground/50" />
                     </div>
-                    <h4 className="text-base font-bold text-foreground">No projects yet</h4>
-                    <p className="text-muted-foreground text-sm mt-1 max-w-xs mx-auto">
-                      {profile.role === 'client' ? 'Start your first project to begin your expansion.' : 'Projects will appear here once you are assigned.'}
+                    <h4 className="text-xl font-bold text-foreground mb-2">No projects yet</h4>
+                    <p className="text-muted-foreground text-sm font-medium mb-8">
+                      {profile.role === 'client' 
+                        ? 'Start your first project to begin your US expansion journey.' 
+                        : 'There are no open projects available at the moment. Check back later.'}
                     </p>
                     {profile.role === 'client' && (
-                      <Link to="/brief-builder" className="inline-block mt-6">
-                        <Button variant="outline" className="h-10 px-6 rounded-lg text-sm font-medium border-border hover:bg-muted">Create a Project</Button>
+                      <Link to="/brief-builder" className="inline-block">
+                        <Button variant="outline" className="h-11 px-8 rounded-xl text-sm font-bold border-2">
+                          Create a Project
+                        </Button>
                       </Link>
                     )}
                   </div>
                 ) : (
                   projects.map((project) => (
-                    <div key={project.id} className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-5 hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center gap-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-muted-foreground border border-border">
-                          <Briefcase className="h-5 w-5" />
+                    <div key={project.id} className="flex flex-col md:flex-row md:items-center justify-between px-6 py-6 hover:bg-muted/30 transition-all group gap-4">
+                      <div className="flex items-center gap-5 flex-1 min-w-0">
+                        <div className={cn(
+                          "flex h-12 w-12 items-center justify-center rounded-xl border shadow-sm shrink-0 transition-colors",
+                          project.status === 'active' ? "bg-emerald-50 border-emerald-100 text-emerald-600 group-hover:bg-emerald-100" : 
+                          project.status === 'in-review' ? "bg-amber-50 border-amber-100 text-amber-600 group-hover:bg-amber-100" : 
+                          "bg-background border-border text-muted-foreground group-hover:bg-muted"
+                        )}>
+                          <Briefcase className="h-6 w-6" />
                         </div>
-                        <div>
-                          <div className="font-bold text-foreground text-base">{project.title}</div>
-                          <div className="flex items-center gap-3 mt-0.5">
-                            <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                              <Clock className="h-3.3 w-3.3" />
+                        <div className="min-w-0">
+                          <div className="font-bold text-foreground text-lg truncate group-hover:text-primary transition-colors">{project.title}</div>
+                          <div className="flex flex-wrap items-center gap-3 mt-1.5">
+                            <span className="text-[10px] font-bold text-muted-foreground uppercase bg-muted px-2 py-0.5 rounded flex items-center gap-1">
+                              <DollarSign className="h-3 w-3" />
+                              {project.value || 'Budget TBD'}
+                            </span>
+                            <span className="text-xs text-muted-foreground font-medium flex items-center gap-1">
+                              <Clock className="h-3.5 w-3.5" />
                               {project.created_at ? new Date(project.created_at).toLocaleDateString() : 'Recent'}
                             </span>
-                            <span className="h-1 w-1 rounded-full bg-muted-foreground" />
-                            <span className="text-xs font-medium text-muted-foreground">{project.value || 'Budget TBD'}</span>
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4 mt-4 sm:mt-0">
+                      
+                      <div className="flex items-center gap-3 w-full md:w-auto justify-end mt-2 md:mt-0">
                         <div className={cn(
-                          "rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider border",
-                          project.status === 'active' ? "bg-background text-muted-foreground border-border" : 
-                          project.status === 'in-review' ? "bg-background text-muted-foreground border-border" : "bg-background text-muted-foreground border-border"
+                          "rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider border shadow-sm mr-2",
+                          project.status === 'active' ? "bg-emerald-50 text-emerald-600 border-emerald-200" : 
+                          project.status === 'in-review' ? "bg-amber-50 text-amber-600 border-amber-200" : "bg-muted text-muted-foreground border-border"
                         )}>
                           {project.status.replace('-', ' ')}
                         </div>
                         <Link to={`/project/${project.id}`}>
-                          <Button variant="outline" className="h-9 px-4 rounded-lg text-xs font-medium border-border hover:bg-muted">
+                          <Button variant="outline" className="h-10 px-5 rounded-xl text-sm font-semibold border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors">
                             View Details
                           </Button>
                         </Link>
