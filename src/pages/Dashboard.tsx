@@ -261,6 +261,7 @@ export default function Dashboard() {
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [allDocuments, setAllDocuments] = useState<any[]>([]);
   const [paymentApprovals, setPaymentApprovals] = useState<any[]>([]);
+  const [allSystemPayments, setAllSystemPayments] = useState<any[]>([]);
   const [isCreatingProject, setIsCreatingProject] = useState(false);
   const [editingProject, setEditingProject] = useState<any>(null);
   const [newProject, setNewProject] = useState({

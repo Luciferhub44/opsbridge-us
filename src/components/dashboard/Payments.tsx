@@ -473,6 +473,16 @@ export default function Payments() {
         </div>
       </div>
 
+      <Card className="p-4 border border-blue-200 bg-blue-50/50 rounded-xl flex items-start gap-3 shadow-sm">
+        <AlertCircle className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+        <div>
+          <h4 className="text-sm font-bold text-blue-900">Secure Processing via American Express</h4>
+          <p className="text-sm text-blue-800/80 mt-1 leading-relaxed">
+            All payments are securely processed by American Express. Once a payment is scheduled by a client, the funds are immediately and successfully debited from their account, meaning scheduled payments <strong>cannot be cancelled</strong>. When a payment status changes to <strong>Paid Out</strong>, please allow 1-5 business days for the funds to arrive in the designated bank account.
+          </p>
+        </div>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="p-6 border border-border bg-card rounded-2xl shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
@@ -620,7 +630,7 @@ export default function Payments() {
                         payment.status === 'failed' ? "bg-rose-50 text-rose-600 border-rose-200" :
                         "bg-amber-50 text-amber-600 border-amber-200"
                       )}>
-                        {payment.status}
+                        {payment.status === 'completed' ? 'Paid Out' : payment.status}
                       </div>
                     </div>
                     <div className="text-sm font-medium text-muted-foreground mt-0.5 truncate">
