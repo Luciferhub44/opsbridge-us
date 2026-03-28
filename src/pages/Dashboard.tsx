@@ -253,6 +253,7 @@ export default function Dashboard() {
   const [providers, setProviders] = useState<any[]>([]);
   const [vettingApps, setVettingApps] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [allDocuments, setAllDocuments] = useState<any[]>([]);
   const [isCreatingProject, setIsCreatingProject] = useState(false);
   const [editingProject, setEditingProject] = useState<any>(null);
   const [newProject, setNewProject] = useState({
@@ -369,6 +370,45 @@ export default function Dashboard() {
       toast.success('Vetting rejected.');
     } catch (error) {
       console.error("Error rejecting vetting:", error);
+    }
+  };
+
+  const handleApproveDocument = async (doc: any) => {
+    try {
+      await supabase.from('documents').update({ status: 'verified' }).eq('id', doc.id);
+      
+      await supabase.from('notifications').insert([{
+        user_id: doc.owner_id,
+        title: 'Document Approved',
+        message: `Your document "${doc.name}" has been reviewed and verified.`,
+        read: false
+      }]);
+
+      setAllDocuments(prev => prev.map(d => d.id === doc.id ? { ...d, status: 'verified' } : d));
+      toast.success('Document approved.');
+    } catch (error) {
+      console.error("Error approving document:", error);
+      toast.error('Failed to approve document.');
+    }
+  };
+
+  const handleRejectDocument = async (doc: any) => {
+    try {
+      // For simplicity, we'll just update status. In a real app, you might add a rejection reason.
+      await supabase.from('documents').update({ status: 'rejected' }).eq('id', doc.id);
+      
+      await supabase.from('notifications').insert([{
+        user_id: doc.owner_id,
+        title: 'Document Action Required',
+        message: `Your document "${doc.name}" was rejected. Please upload a revised version.`,
+        read: false
+      }]);
+
+      setAllDocuments(prev => prev.map(d => d.id === doc.id ? { ...d, status: 'rejected' } : d));
+      toast.error('Document rejected.');
+    } catch (error) {
+      console.error("Error rejecting document:", error);
+      toast.error('Failed to reject document.');
     }
   };
 
@@ -1470,6 +1510,72 @@ export default function Dashboard() {
                 )}
               </div>
             </Card>
+
+            {/* Document Review Section */}
+            <Card className="p-0 overflow-hidden border-none bg-card rounded-xl border border-border">
+              <div className="border-b border-border bg-card px-6 py-4 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-foreground">Document Review</h3>
+                  <p className="text-sm text-muted-foreground">{allDocuments.filter(d => d.status === 'pending').length} documents pending review</p>
+                </div>
+              </div>
+              <div className="divide-y divide-border">
+                {allDocuments.length === 0 ? (
+                  <div className="px-6 py-16 text-center flex flex-col items-center">
+                     <div className="h-12 w-12 rounded-full bg-background flex items-center justify-center mx-auto mb-4 ">
+                       <ShieldCheck className="h-6 w-6 text-muted-foreground" />
+                     </div>
+                     <p className="text-muted-foreground text-sm">No documents submitted yet.</p>
+                   </div>
+                ) : (
+                  allDocuments.map((doc) => (
+                    <div key={doc.id} className="flex flex-col md:flex-row md:items-center justify-between px-6 py-4 hover:bg-muted/50 transition-all group gap-4">
+                      <div className="flex items-center gap-4">
+                        <FileText className="h-5 w-5 text-muted-foreground" />
+                        <div className="min-w-0">
+                          <div className="font-bold text-foreground text-sm truncate">{doc.name}</div>
+                           <div className="text-xs text-muted-foreground mt-0.5">
+                             Uploaded by: {doc.owner?.display_name || doc.owner?.email}
+                           </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 shrink-0">
+                        <div className={cn(
+                          "px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider",
+                          doc.status === 'verified' ? "bg-emerald-50 text-emerald-600 border border-emerald-100" :
+                          doc.status === 'pending' ? "bg-amber-50 text-amber-600 border border-amber-100" : "bg-rose-50 text-rose-600 border border-rose-100"
+                        )}>
+                          {doc.status}
+                        </div>
+                        {doc.status === 'pending' && (
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline"
+                              size="sm"
+                              className="h-8 px-3 rounded-md border-emerald-200 text-emerald-600 hover:bg-emerald-50 text-xs font-semibold"
+                              onClick={() => handleApproveDocument(doc)}
+                            >
+                              Approve
+                            </Button>
+                            <Button 
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 px-3 rounded-md text-destructive hover:bg-destructive/10 text-xs font-semibold"
+                              onClick={() => handleRejectDocument(doc)}
+                            >
+                              Reject
+                            </Button>
+                          </div>
+                        )}
+                        <a href={doc.url} target="_blank" rel="noopener noreferrer">
+                          <Button variant="outline" size="sm" className="h-8 px-3 rounded-md text-xs font-semibold">View</Button>
+                        </a>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </Card>
           </div>
         )}
       </main>
@@ -1559,6 +1665,14 @@ export default function Dashboard() {
           <MessagingSystem 
             recipientId={selectedProviderForMessage.id} 
             recipientName={selectedProviderForMessage.display_name || selectedProviderForMessage.email}
+            onClose={() => setSelectedProviderForMessage(null)}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+viderForMessage.email}
             onClose={() => setSelectedProviderForMessage(null)}
           />
         </div>
