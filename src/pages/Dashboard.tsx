@@ -975,76 +975,72 @@ export default function Dashboard() {
                 { label: 'Live Operations', value: projects.filter(p => p.status === 'active').length, color: 'emerald', icon: ShieldCheck },
               ].map((stat, i) => (
                 <Card key={i} className={cn(
-                  "p-10 border-none  transition-all duration-500 hover: group rounded-xl relative overflow-hidden",
+                  "p-6 rounded-xl border border-border flex flex-col justify-between",
                   stat.color === 'zinc' ? "bg-card" : 
-                  stat.color === 'amber' ? "bg-amber-50/30" : "bg-emerald-50/30"
+                  stat.color === 'amber' ? "bg-amber-50/50" : "bg-emerald-50/50"
                 )}>
-                  <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center justify-between mb-4">
                     <div className={cn(
-                      "h-16 w-16 rounded-2xl flex items-center justify-center transition-all duration-500 ",
-                      stat.color === 'zinc' ? "bg-background text-foreground group-hover:bg-primary group-hover:text-primary-foreground" :
-                      stat.color === 'amber' ? "bg-amber-100 text-amber-600 group-hover:bg-amber-600 group-hover:text-primary-foreground" :
-                      "bg-emerald-100 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-primary-foreground"
+                      "h-10 w-10 rounded-lg flex items-center justify-center",
+                      stat.color === 'zinc' ? "bg-muted text-foreground" :
+                      stat.color === 'amber' ? "bg-amber-100 text-amber-600" :
+                      "bg-emerald-100 text-emerald-600"
                     )}>
-                      <stat.icon className="h-8 w-8" />
+                      <stat.icon className="h-5 w-5" />
                     </div>
                   </div>
-                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">{stat.label}</div>
-                  <div className={cn(
-                    "text-6xl font-bold tracking-tighter",
-                    stat.color === 'amber' ? "text-amber-600" : 
-                    stat.color === 'emerald' ? "text-emerald-600" : "text-foreground"
-                  )}>{stat.value}</div>
+                  <div>
+                    <div className="text-3xl font-bold text-foreground mb-1">{stat.value}</div>
+                    <div className="text-sm font-medium text-muted-foreground">{stat.label}</div>
+                  </div>
                 </Card>
               ))}
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
-              <Card className="p-0 overflow-hidden border-none  bg-card rounded-xl border border-border">
-                <div className="border-b border-border bg-card px-12 py-10 flex items-center justify-between">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <Card className="flex flex-col border border-border bg-card rounded-xl overflow-hidden">
+                <div className="border-b border-border bg-card px-6 py-4 flex items-center justify-between">
                   <div>
-                    <h3 className="text-3xl font-bold text-foreground tracking-tighter">Vetting Queue</h3>
-                    <p className="text-sm text-muted-foreground mt-2">{vettingApps.length} pending requests</p>
+                    <h3 className="text-lg font-bold text-foreground">Vetting Queue</h3>
+                    <p className="text-sm text-muted-foreground">{vettingApps.length} pending requests</p>
                   </div>
                 </div>
-                <div className="divide-y divide-border">
+                <div className="divide-y divide-border overflow-y-auto max-h-[500px]">
                   {vettingApps.length === 0 ? (
-                    <div className="px-12 py-32 text-center">
-                      <div className="h-24 w-24 rounded-full bg-background flex items-center justify-center mx-auto mb-8 ">
-                        <ShieldCheck className="h-12 w-12 text-muted-foreground" />
+                    <div className="px-6 py-16 text-center flex flex-col items-center">
+                      <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                        <ShieldCheck className="h-6 w-6 text-muted-foreground" />
                       </div>
-                      <p className="text-muted-foreground font-bold uppercase tracking-widest text-sm italic">Queue is currently empty.</p>
+                      <p className="text-muted-foreground text-sm">Queue is currently empty.</p>
                     </div>
                   ) : (
                     vettingApps.map((app) => (
-                      <div key={app.id} className="flex items-center justify-between px-12 py-10 hover:bg-muted/50 transition-all group">
-                        <div className="flex items-center gap-8">
-                          <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-3xl  transition-transform group-hover:scale-110 group-hover:rotate-3">
+                      <div key={app.id} className="flex items-center justify-between px-6 py-4 hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center gap-4">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-lg">
                             {app.entity_name ? app.entity_name.charAt(0) : '?'}
                           </div>
                           <div>
-                            <div className="font-bold text-foreground text-2xl tracking-tighter mb-1">{app.entity_name}</div>
-                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest flex items-center gap-2">
-                              <span className="bg-muted px-2 py-0.5 rounded">EIN: {app.ein}</span>
+                            <div className="font-bold text-foreground text-sm">{app.entity_name}</div>
+                            <div className="text-xs text-muted-foreground font-medium mt-0.5">
+                              EIN: {app.ein}
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-8">
+                        <div className="flex items-center gap-3">
                           <div className={cn(
-                            "rounded-full px-6 py-2 text-xs font-bold uppercase tracking-wider ",
+                            "px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider",
                             app.status === 'approved' ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : 
                             app.status === 'pending' ? "bg-amber-50 text-amber-600 border border-amber-100" : "bg-rose-50 text-rose-600 border border-rose-100"
                           )}>
                             {app.status}
                           </div>
-                          <div className="flex gap-4">
-                            {app.status === 'pending' && (
-                              <>
-                                <Button className="h-14 px-8 rounded-2xl font-bold text-xs uppercase tracking-widest bg-primary text-primary-foreground  hover:scale-105 transition-all" onClick={() => handleApproveVetting(app)}>Approve</Button>
-                                <Button variant="ghost" className="h-14 px-8 rounded-2xl font-bold text-xs uppercase tracking-widest text-rose-600 hover:bg-rose-50 border border-rose-100 active:scale-95" onClick={() => handleRejectVetting(app)}>Reject</Button>
-                              </>
-                            )}
-                          </div>
+                          {app.status === 'pending' && (
+                            <div className="flex gap-2">
+                              <Button size="sm" className="h-8 px-3 text-xs bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => handleApproveVetting(app)}>Approve</Button>
+                              <Button size="sm" variant="ghost" className="h-8 px-3 text-xs text-destructive hover:bg-destructive/10" onClick={() => handleRejectVetting(app)}>Reject</Button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))
@@ -1052,58 +1048,54 @@ export default function Dashboard() {
                 </div>
               </Card>
 
-              <Card className="p-0 overflow-hidden border-none  bg-card rounded-xl border border-border">
-                <div className="border-b border-border bg-card px-12 py-10 flex items-center justify-between">
+              <Card className="flex flex-col border border-border bg-card rounded-xl overflow-hidden">
+                <div className="border-b border-border bg-card px-6 py-4 flex items-center justify-between">
                   <div>
-                    <h3 className="text-3xl font-bold text-foreground tracking-tighter">User Directory</h3>
-                    <p className="text-sm text-muted-foreground mt-2">{allUsers.length} Total Users</p>
+                    <h3 className="text-lg font-bold text-foreground">User Directory</h3>
+                    <p className="text-sm text-muted-foreground">{allUsers.length} Total Users</p>
                   </div>
                 </div>
-                <div className="divide-y divide-border">
+                <div className="divide-y divide-border overflow-y-auto max-h-[500px]">
                   {allUsers.map((user) => (
-                    <div key={user.id} className="flex items-center justify-between px-12 py-10 hover:bg-muted/50 transition-all group">
-                      <div className="flex items-center gap-8">
-                        <div className="h-20 w-20 rounded-lg bg-background flex items-center justify-center text-muted-foreground font-bold overflow-hidden  group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
-                          {user.photo_url ? <img src={user.photo_url} alt="" className="h-full w-full object-cover" /> : <Users className="h-10 w-10" />}
+                    <div key={user.id} className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-4 hover:bg-muted/50 transition-colors gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground font-bold overflow-hidden shrink-0">
+                          {user.photo_url ? <img src={user.photo_url} alt="" className="h-full w-full object-cover" /> : <Users className="h-5 w-5" />}
                         </div>
-                        <div>
-                          <div className="font-bold text-foreground text-2xl tracking-tighter mb-1">{user.display_name || user.email}</div>
-                          <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">{user.email}</div>
+                        <div className="min-w-0">
+                          <div className="font-bold text-foreground text-sm truncate">{user.display_name || user.email}</div>
+                          <div className="text-xs text-muted-foreground truncate mt-0.5">{user.email}</div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-6">
-                        <div className="relative">
-                          <select 
-                            value={user.role}
-                            onChange={(e) => handleUpdateUserRole(user.id, e.target.value)}
-                            className="h-14 rounded-2xl border-none bg-muted px-8 text-xs font-bold uppercase tracking-wider focus:ring-2 focus:ring-ring/50 appearance-none cursor-pointer pr-12"
-                          >
-                            <option value="client">Client</option>
-                            <option value="provider">Provider</option>
-                            <option value="admin">Admin</option>
-                          </select>
-                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                            <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
-                          </div>
-                        </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <select 
+                          value={user.role}
+                          onChange={(e) => handleUpdateUserRole(user.id, e.target.value)}
+                          className="h-8 rounded-md border border-border bg-muted/50 px-3 py-1 text-xs font-medium focus:ring-1 focus:ring-ring outline-none"
+                        >
+                          <option value="client">Client</option>
+                          <option value="provider">Provider</option>
+                          <option value="admin">Admin</option>
+                        </select>
                         <button
                           onClick={() => handleToggleUserVerification(user.id, user.is_verified || false)}
                           className={cn(
-                            "flex items-center gap-3 text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-2xl transition-all ",
+                            "flex items-center justify-center h-8 w-8 rounded-md transition-colors",
                             user.is_verified 
-                              ? "text-emerald-600 bg-emerald-50 border border-emerald-100 hover:bg-emerald-100" 
-                              : "text-muted-foreground bg-muted border border-border hover:bg-border"
+                              ? "text-emerald-600 bg-emerald-50 hover:bg-emerald-100" 
+                              : "text-muted-foreground bg-muted hover:bg-muted/80"
                           )}
+                          title={user.is_verified ? "Verified" : "Unverified"}
                         >
                           <ShieldCheck className="h-4 w-4" />
-                          {user.is_verified ? 'Verified' : 'Unverified'}
                         </button>
                         <Button 
                           variant="ghost" 
-                          className="h-14 w-14 p-0 rounded-2xl text-rose-600 hover:text-rose-700 hover:bg-rose-50 border border-rose-100  active:scale-90"
+                          size="icon"
+                          className="h-8 w-8 rounded-md text-destructive hover:bg-destructive/10"
                           onClick={() => handleDeleteUser(user.id)}
                         >
-                          <Trash2 className="h-7 w-7" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
@@ -1112,66 +1104,69 @@ export default function Dashboard() {
               </Card>
             </div>
 
-            <Card className="p-0 overflow-hidden border-none  bg-card rounded-xl border border-border">
-              <div className="border-b border-border bg-card px-12 py-10 flex items-center justify-between">
+            <Card className="p-0 overflow-hidden border-none bg-card rounded-xl border border-border">
+              <div className="border-b border-border bg-card px-6 py-4 flex items-center justify-between">
                 <div>
-                  <h3 className="text-3xl font-bold text-foreground tracking-tighter">All Projects</h3>
-                  <p className="text-sm text-muted-foreground mt-2">{projects.length} Active Projects</p>
+                  <h3 className="text-lg font-bold text-foreground">All Projects</h3>
+                  <p className="text-sm text-muted-foreground">{projects.length} Active Projects</p>
                 </div>
               </div>
               <div className="divide-y divide-border">
                 {projects.length === 0 ? (
-                  <div className="px-12 py-32 text-center">
-                    <div className="h-24 w-24 rounded-full bg-background flex items-center justify-center mx-auto mb-8 ">
-                      <Briefcase className="h-12 w-12 text-muted-foreground" />
+                  <div className="px-6 py-16 text-center flex flex-col items-center">
+                    <div className="h-12 w-12 rounded-full bg-background flex items-center justify-center mx-auto mb-4 ">
+                      <Briefcase className="h-6 w-6 text-muted-foreground" />
                     </div>
-                    <p className="text-muted-foreground font-bold uppercase tracking-widest text-sm italic">Registry is currently empty.</p>
+                    <p className="text-muted-foreground text-sm">Registry is currently empty.</p>
                   </div>
                 ) : (
                   projects.map((project) => (
-                    <div key={project.id} className="flex flex-col md:flex-row md:items-center justify-between px-12 py-10 hover:bg-muted/50 transition-all group">
-                      <div className="flex items-center gap-10">
+                    <div key={project.id} className="flex flex-col md:flex-row md:items-center justify-between px-6 py-4 hover:bg-muted/50 transition-all group gap-4">
+                      <div className="flex items-center gap-4">
                         <div className={cn(
-                          "flex h-20 w-20 items-center justify-center rounded-lg  transition-all duration-500 group-hover:scale-110 group-hover:rotate-3",
+                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-transform",
                           project.status === 'active' ? "bg-emerald-500 text-primary-foreground " : 
                           project.status === 'in-review' ? "bg-amber-500 text-primary-foreground " : "bg-primary text-primary-foreground "
                         )}>
-                          <Briefcase className="h-10 w-10" />
+                          <Briefcase className="h-5 w-5" />
                         </div>
-                        <div>
-                          <div className="font-bold text-foreground text-3xl tracking-tighter mb-2">{project.title}</div>
-                          <div className="flex items-center gap-6">
-                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+                        <div className="min-w-0">
+                          <div className="font-bold text-foreground text-sm truncate">{project.title}</div>
+                          <div className="flex items-center gap-3 mt-1">
+                            <span className="text-xs text-muted-foreground flex items-center gap-1.5">
                               <Clock className="h-3 w-3" />
                               {project.created_at ? new Date(project.created_at).toLocaleDateString() : 'Recent'}
                             </span>
-                            <span className="h-1.5 w-1.5 rounded-full bg-border" />
-                            <span className="text-xs font-bold text-emerald-600 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-lg">{project.value || 'Valuation Pending'}</span>
+                            <span className="text-[10px] font-semibold text-emerald-600 uppercase tracking-wider bg-emerald-50 px-2 py-0.5 rounded-md">
+                              {project.value || 'Valuation Pending'}
+                            </span>
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-8 mt-6 md:mt-0">
+                      <div className="flex items-center gap-4 shrink-0">
                         <div className={cn(
-                          "rounded-full px-6 py-2 text-xs font-bold uppercase tracking-wider ",
+                          "px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider",
                           project.status === 'active' ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : 
                           project.status === 'in-review' ? "bg-amber-50 text-amber-600 border border-amber-100" : "bg-background text-muted-foreground border border-border"
                         )}>
                           {project.status.replace('-', ' ')}
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
                           <Button 
                             variant="outline" 
-                            className="h-16 w-16 p-0 rounded-lg border-border hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all  active:scale-90"
+                            size="icon"
+                            className="h-8 w-8 rounded-md hover:bg-muted hover:text-foreground"
                             onClick={() => startEditingProject(project)}
                           >
-                            <Edit className="h-7 w-7" />
+                            <Edit className="h-4 w-4" />
                           </Button>
                           <Button 
                             variant="ghost" 
-                            className="h-16 w-16 p-0 rounded-lg text-rose-600 hover:text-rose-700 hover:bg-rose-50 border border-rose-100  active:scale-90"
+                            size="icon"
+                            className="h-8 w-8 rounded-md text-destructive hover:bg-destructive/10"
                             onClick={() => handleDeleteProject(project.id)}
                           >
-                            <Trash2 className="h-8 w-8" />
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
