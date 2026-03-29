@@ -430,13 +430,15 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
   };
 
   return (
-    <Card className={cn(
-      "flex w-full overflow-hidden bg-card shadow-lg border border-border",
-      onClose ? "h-[600px] max-w-4xl rounded-xl" : "h-full fixed inset-0 sm:h-[calc(100vh-4rem)] sm:max-h-[800px] sm:max-w-4xl sm:relative sm:rounded-2xl sm:mx-auto sm:my-8"
+    <div className={cn(
+      "flex flex-row flex-nowrap w-full overflow-hidden bg-card border border-border transition-all",
+      onClose 
+        ? "h-[85vh] max-h-[700px] max-w-4xl rounded-2xl shadow-2xl" 
+        : "h-[75vh] min-h-[400px] max-h-[800px] rounded-2xl shadow-sm"
     )}>
       {/* Sidebar: Chat List */}
       <div className={cn(
-        "border-r border-border bg-background flex-col w-full md:w-80 md:flex",
+        "border-r border-border bg-background flex-col w-full md:w-80 md:flex shrink-0",
         activeChat ? "hidden md:flex" : "flex"
       )}>
         <div className="p-4 border-b border-border bg-card flex items-center justify-between">
@@ -445,7 +447,7 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
             Messages
           </h2>
           {onClose && (
-            <Button variant="ghost" size="icon" onClick={onClose} className="md:hidden rounded-full h-8 w-8">
+            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full h-8 w-8">
               <X className="h-4 w-4 text-muted-foreground" />
             </Button>
           )}
@@ -471,7 +473,7 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
                   <User className="h-5 w-5" />
                 </div>
                 <div className="text-left overflow-hidden flex-1">
-                  <div className="font-semibold text-foreground truncate flex justify-between items-center">
+                  <div className="font-semibold text-foreground truncate flex justify-between items-center text-sm md:text-base">
                     {chat.otherParticipantName}
                     {chat.unreadCount && chat.unreadCount > 0 ? (
                       <span className="bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full">
@@ -492,28 +494,28 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
 
       {/* Main: Chat Window */}
       <div className={cn(
-        "flex-1 flex-col bg-card",
+        "flex-1 flex flex-col bg-card relative",
         activeChat ? "flex" : "hidden md:flex"
       )}>
         {activeChat ? (
           <>
             {/* Chat Header */}
-            <div className="p-4 border-b border-border flex items-center justify-between bg-card">
-              <div className="flex items-center gap-3">
+            <div className="p-4 border-b border-border flex items-center justify-between bg-card shrink-0">
+              <div className="flex items-center gap-2 md:gap-3 min-w-0">
                 <Button 
                   variant="ghost" 
                   size="icon" 
                   onClick={() => setActiveChat(null)}
-                  className="md:hidden mr-2 rounded-full h-9 w-9"
+                  className="md:hidden rounded-full h-9 w-9 shrink-0"
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
-                <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-                  <User className="h-5 w-5" />
+                <div className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0">
+                  <User className="h-4 w-4 md:h-5 md:w-5" />
                 </div>
-                <div>
-                  <div className="font-bold text-foreground">{activeChat.otherParticipantName}</div>
-                  <div className="text-xs text-emerald-500 flex items-center gap-1">
+                <div className="min-w-0">
+                  <div className="font-bold text-foreground text-sm md:text-base truncate">{activeChat.otherParticipantName}</div>
+                  <div className="text-[10px] md:text-xs text-emerald-500 flex items-center gap-1">
                     {otherParticipantTyping ? (
                       <span className="flex items-center gap-1 animate-pulse italic text-primary">
                         is typing...
@@ -527,19 +529,19 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 md:gap-2">
                 {profile?.role === 'admin' && (
                   <Button 
                     variant="ghost" 
                     size="icon" 
                     onClick={() => handleDeleteChat(activeChat.id)}
-                    className="text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-full"
+                    className="text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-full h-9 w-9"
                   >
                     <Trash2 className="h-5 w-5" />
                   </Button>
                 )}
                 {onClose && (
-                  <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
+                  <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full h-9 w-9">
                     <X className="h-5 w-5 text-muted-foreground" />
                   </Button>
                 )}
@@ -549,18 +551,19 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
             {/* Messages Area */}
             <div 
               ref={scrollRef}
-              className="flex-1 overflow-y-auto p-6 space-y-4 bg-background/50"
+              className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 bg-background/50"
             >
               {messages.map((msg) => (
                 <div 
                   key={msg.id}
                   className={`flex ${msg.sender_id === user?.id ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className={`max-w-[80%] rounded-2xl p-3 text-sm shadow-sm relative group ${
+                  <div className={cn(
+                    "max-w-[85%] md:max-w-[80%] rounded-2xl p-3 text-sm shadow-sm relative group",
                     msg.sender_id === user?.id 
                       ? 'bg-primary text-primary-foreground rounded-tr-none' 
                       : 'bg-card text-foreground border border-border rounded-tl-none'
-                  }`}>
+                  )}>
                     {msg.text}
                     {renderAttachment(msg)}
                     {profile?.role === 'admin' && (
@@ -592,7 +595,7 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
             </div>
 
             {/* Input Area */}
-            <div className="p-4 border-t border-border bg-card">
+            <div className="p-3 md:p-4 border-t border-border bg-card shrink-0">
               <form onSubmit={handleSendMessage} className="flex gap-2 items-center">
                 <input
                   type="file"
@@ -605,7 +608,7 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
                   type="button" 
                   variant="ghost" 
                   size="icon" 
-                  className="rounded-full text-muted-foreground"
+                  className="rounded-full text-muted-foreground h-9 w-9 md:h-10 md:w-10"
                   disabled={uploading}
                   onClick={() => fileInputRef.current?.click()}
                 >
@@ -618,13 +621,13 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
                 <Input
                   value={newMessage}
                   onChange={onInputChange}
-                  placeholder="Type your message..."
-                  className="flex-1 rounded-full bg-background border-border focus:ring-primary/100"
+                  placeholder="Type a message..."
+                  className="flex-1 rounded-full bg-background border-border focus:ring-primary/100 h-9 md:h-10 text-sm"
                 />
                 <Button 
                   type="submit" 
                   size="icon" 
-                  className="rounded-full bg-primary hover:bg-primary/90 h-10 w-10 flex-shrink-0"
+                  className="rounded-full bg-primary hover:bg-primary/90 h-9 w-9 md:h-10 md:w-10 flex-shrink-0"
                   disabled={!newMessage.trim() && !uploading}
                 >
                   <Send className="h-4 w-4" />
@@ -646,7 +649,7 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
       {/* Image Preview Modal */}
       {selectedImage && (
         <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-background/90 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-background/90 backdrop-blur-sm p-4"
           onClick={() => setSelectedImage(null)}
         >
           <div className="relative max-w-5xl max-h-[90vh] w-full h-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
@@ -654,7 +657,7 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
               variant="ghost" 
               size="icon" 
               onClick={() => setSelectedImage(null)}
-              className="absolute top-4 right-4 z-[110] rounded-full bg-card/50 border border-border/50 hover:bg-card/80 text-foreground"
+              className="absolute top-4 right-4 z-[210] rounded-full bg-card/50 border border-border/50 hover:bg-card/80 text-foreground"
             >
               <X className="h-5 w-5" />
             </Button>
@@ -666,6 +669,6 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
           </div>
         </div>
       )}
-    </Card>
+    </div>
   );
 }
