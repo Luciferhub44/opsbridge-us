@@ -12,7 +12,8 @@ import {
   Image as ImageIcon,
   AlertCircle,
   Check,
-  CheckCheck
+  CheckCheck,
+  ArrowLeft
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
@@ -20,6 +21,7 @@ import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Input } from '../ui/input';
 import { toast } from 'sonner';
+import { cn } from '../../lib/utils';
 
 interface Message {
   id: string;
@@ -428,14 +430,25 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
   };
 
   return (
-    <div className="flex h-[600px] w-full max-w-4xl overflow-hidden rounded-xl bg-card shadow-none border border-border">
+    <Card className={cn(
+      "flex w-full overflow-hidden bg-card shadow-lg border border-border",
+      onClose ? "h-[600px] max-w-4xl rounded-xl" : "h-full fixed inset-0 sm:h-[calc(100vh-4rem)] sm:max-h-[800px] sm:max-w-4xl sm:relative sm:rounded-2xl sm:mx-auto sm:my-8"
+    )}>
       {/* Sidebar: Chat List */}
-      <div className="w-80 border-r border-border bg-background flex flex-col">
-        <div className="p-4 border-b border-border bg-card">
+      <div className={cn(
+        "border-r border-border bg-background flex-col w-full md:w-80 md:flex",
+        activeChat ? "hidden md:flex" : "flex"
+      )}>
+        <div className="p-4 border-b border-border bg-card flex items-center justify-between">
           <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
             <MessageSquare className="h-5 w-5 text-primary" />
             Messages
           </h2>
+          {onClose && (
+            <Button variant="ghost" size="icon" onClick={onClose} className="md:hidden rounded-full h-8 w-8">
+              <X className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          )}
         </div>
         
         <div className="flex-1 overflow-y-auto p-2 space-y-1">
@@ -478,12 +491,23 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
       </div>
 
       {/* Main: Chat Window */}
-      <div className="flex-1 flex flex-col bg-card">
+      <div className={cn(
+        "flex-1 flex-col bg-card",
+        activeChat ? "flex" : "hidden md:flex"
+      )}>
         {activeChat ? (
           <>
             {/* Chat Header */}
             <div className="p-4 border-b border-border flex items-center justify-between bg-card">
               <div className="flex items-center gap-3">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setActiveChat(null)}
+                  className="md:hidden mr-2 rounded-full h-9 w-9"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
                 <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
                   <User className="h-5 w-5" />
                 </div>
@@ -642,6 +666,6 @@ export default function MessagingSystem({ recipientId, recipientName, onClose }:
           </div>
         </div>
       )}
-    </div>
+    </Card>
   );
 }

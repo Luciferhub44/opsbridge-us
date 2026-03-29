@@ -21,7 +21,8 @@ import {
   User,
   Loader2, DollarSign,
   FileText,
-  Building2
+  Building2,
+  Menu
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -43,6 +44,7 @@ import logoUrl from '../assets/logo.svg';
 
 export default function Dashboard() {
   const { profile, loading: authLoading } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [projects, setProjects] = useState<any[]>([]);
   const [onboardingDismissed, setOnboardingDismissed] = useState(() => {
@@ -676,7 +678,10 @@ export default function Dashboard() {
       {profile?.role === 'provider' && !profile.onboarding_completed && !onboardingDismissed && (
         <ProviderOnboarding user={profile} onComplete={handleDismissOnboarding} />
       )}
-      <aside className="w-72 border-r border-border bg-card flex flex-col h-screen sticky top-0">
+      <aside className={cn(
+        "fixed inset-y-0 left-0 z-50 w-72 border-r border-border bg-card flex-col h-screen transition-transform duration-300 ease-in-out lg:sticky lg:top-0 lg:flex lg:translate-x-0",
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
         <div className="p-8">
           <div className="flex items-center gap-3 mb-12">
             <img src={logoUrl} alt="OpsBridge Logo" className="h-10 w-10" />
@@ -742,20 +747,28 @@ export default function Dashboard() {
         </div>
       </aside>
 
+      {/* Overlay for mobile when sidebar is open */}
+      {sidebarOpen && <div onClick={() => setSidebarOpen(false)} className="fixed inset-0 z-40 bg-black/50 lg:hidden" />}
+
       {/* Main Content */}
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-foreground">Welcome back, {profile.display_name || profile.email}</h1>
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-2 rounded-lg bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <div>
+              <h1 className="text-xl md:text-2xl font-bold text-foreground">Welcome back, {profile.display_name || profile.email}</h1>
               {profile.role === 'admin' && (
                 <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground border border-border uppercase tracking-wider">Admin</span>
               )}
             </div>
-            <p className="text-muted-foreground text-sm mt-0.5">Manage your projects and network connections.</p>
           </div>
           <div className="flex items-center gap-2">
-            <div className="relative hidden lg:block">
+            <div className="hidden lg:block relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input 
                 type="text" 
