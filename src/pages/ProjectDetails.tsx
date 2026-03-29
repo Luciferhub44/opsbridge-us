@@ -19,6 +19,7 @@ import { Card } from '@/components/ui/card';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import Markdown from 'react-markdown';
+import MDEditor from '@uiw/react-md-editor';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -113,6 +114,11 @@ export default function ProjectDetails() {
   const handleApply = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile || !id) return;
+    
+    if (!message || message.trim() === '') {
+      toast.error('Please enter a proposal message.');
+      return;
+    }
 
     setApplying(true);
     try {
@@ -319,7 +325,7 @@ export default function ProjectDetails() {
                   ) : (
                     applications.map((app) => (
                       <Card key={app.id} className="flex flex-col sm:flex-row sm:items-start justify-between p-6 border border-border bg-card rounded-2xl gap-4 shadow-sm hover:border-primary/30 transition-colors group">
-                        <div className="flex items-start gap-4 flex-1">
+                        <div className="flex items-start gap-4 flex-1 min-w-0">
                           {app.provider?.photo_url ? (
                             <img src={app.provider.photo_url} alt="Provider Avatar" className="h-12 w-12 rounded-xl object-cover shrink-0 border border-border" />
                           ) : (
@@ -327,7 +333,7 @@ export default function ProjectDetails() {
                               <Users className="h-6 w-6" />
                             </div>
                           )}
-                          <div className="flex-1">
+                          <div className="flex-1 min-w-0">
                             <div className="font-bold text-foreground text-base">
                               {app.provider?.display_name || app.provider?.email || `Provider #${app.provider_id.slice(0, 5)}`}
                             </div>
@@ -336,9 +342,15 @@ export default function ProjectDetails() {
                                 {app.provider.company_name}
                               </div>
                             )}
-                            <div className="text-sm text-muted-foreground mt-2 bg-muted/30 p-3 rounded-xl border border-border leading-relaxed">
-                              {app.message || 'No additional message provided.'}
-                            </div>
+                            {app.message ? (
+                              <div className="mt-3 bg-muted/30 p-5 rounded-xl border border-border prose prose-sm max-w-none dark:prose-invert">
+                                <Markdown>{app.message}</Markdown>
+                              </div>
+                            ) : (
+                              <div className="text-sm text-muted-foreground mt-3 bg-muted/30 p-3 rounded-xl border border-border leading-relaxed italic">
+                                No additional message provided.
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="flex flex-col items-end gap-3 shrink-0">
@@ -384,19 +396,23 @@ export default function ProjectDetails() {
                     </div>
                   ) : (
                     <form onSubmit={handleApply} className="space-y-5">
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
                           Your Proposal Message
                         </label>
-                        <textarea
-                          required
-                          value={message}
-                          onChange={(e) => setMessage(e.target.value)}
-                          placeholder="Explain why your business is the perfect fit for this expansion project..."
-                          className="w-full h-40 rounded-xl border border-border bg-background p-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 resize-y transition-all"
-                        />
+                        <div data-color-mode="light" className="rounded-xl overflow-hidden border border-border">
+                          <MDEditor
+                            value={message}
+                            onChange={(v) => setMessage(v || '')}
+                            height={300}
+                            preview="edit"
+                            textareaProps={{
+                              placeholder: "Explain why your business is the perfect fit for this project. Format your proposal with bullet points, headings, or bold text..."
+                            }}
+                          />
+                        </div>
                       </div>
-                      <Button type="submit" className="w-full gap-2 h-12 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-bold text-base shadow-sm transition-all active:scale-95" disabled={applying}>
+                      <Button type="submit" className="w-full gap-2 h-12 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-bold text-base shadow-sm transition-all active:scale-95" disabled={applying || !message.trim()}>
                         {applying ? <Clock className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                         {applying ? 'Submitting...' : 'Submit Application'}
                       </Button>

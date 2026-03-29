@@ -8,6 +8,7 @@ import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
+import MDEditor from '@uiw/react-md-editor';
 
 const STEPS = [
   { id: 'company', title: 'Company Details', description: 'Tell us about your entity.', icon: Building2 },
@@ -109,7 +110,7 @@ ${formData.needs}
 
   return (
     <div className="min-h-screen bg-background py-16 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-5xl">
         <div className="mb-8">
           <Button 
             variant="ghost" 
@@ -212,16 +213,21 @@ ${formData.needs}
               )}
 
               {step === 1 && (
-                <div className="space-y-6">
-                  <div className="space-y-2.5">
+                <div className="space-y-8">
+                  <div className="space-y-3">
                     <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Project Scope & Needs <span className="text-rose-500">*</span></label>
-                    <textarea 
-                      required
-                      className="w-full min-h-[160px] rounded-xl border border-border bg-background p-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/20 resize-y transition-all"
-                      placeholder="Describe what you are looking to achieve. For example: 'We need to set up a 10,000 sq ft warehouse in Texas and hire 5 key operational staff within 3 months...'"
-                      value={formData.needs}
-                      onChange={e => setFormData({...formData, needs: e.target.value})}
-                    />
+                    <p className="text-sm text-muted-foreground mb-3">Provide a detailed breakdown of your requirements. You can use formatting to structure your thoughts.</p>
+                    <div data-color-mode="light" className="rounded-xl overflow-hidden border border-border">
+                      <MDEditor
+                        value={formData.needs}
+                        onChange={(v) => setFormData({...formData, needs: v || ''})}
+                        height={350}
+                        preview="edit"
+                        textareaProps={{
+                          placeholder: "Describe what you are looking to achieve.\nFor example:\n- We need to set up a 10,000 sq ft warehouse in Texas.\n- Hire 5 key operational staff within 3 months.\n- Complete compliance checks for federal regulations."
+                        }}
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2.5">
                     <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Estimated Budget (Optional)</label>
@@ -237,23 +243,19 @@ ${formData.needs}
 
               {step === 2 && (
                 <div className="space-y-6">
-                  <div className="rounded-2xl border border-border bg-muted/10 p-6 overflow-hidden">
-                    <div className="prose prose-stone max-w-none text-sm dark:prose-invert">
-                       <pre className="whitespace-pre-wrap font-sans text-foreground/90 leading-relaxed bg-transparent p-0 m-0">
-                         {sow}
-                       </pre>
-                    </div>
-                  </div>
-                  <div className="space-y-2.5">
+                  <div className="space-y-3">
                     <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                       <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                      Make changes to the Scope of Work
+                      Finalize the Scope of Work
                     </label>
-                    <textarea 
-                      className="w-full min-h-[200px] rounded-xl border border-border bg-background p-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 font-mono transition-all"
-                      value={sow}
-                      onChange={e => setSow(e.target.value)}
-                    />
+                    <p className="text-sm text-muted-foreground mb-4">Review and refine the generated brief before publishing. This is what operational partners will see.</p>
+                    <div data-color-mode="light" className="rounded-xl overflow-hidden border border-border shadow-sm">
+                      <MDEditor
+                        value={sow}
+                        onChange={(v) => setSow(v || '')}
+                        height={500}
+                      />
+                    </div>
                   </div>
                 </div>
               )}
