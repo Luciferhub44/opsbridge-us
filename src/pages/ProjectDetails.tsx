@@ -19,6 +19,7 @@ import { Card } from '@/components/ui/card';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import MDEditor from '@uiw/react-md-editor';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -296,8 +297,8 @@ export default function ProjectDetails() {
                   Project Description & Scope
                 </h2>
               </div>
-              <div className="p-8 prose prose-stone max-w-none text-sm dark:prose-invert">
-                <Markdown>{project.sow}</Markdown>
+              <div className="p-8 prose prose-stone max-w-none text-sm dark:prose-invert prose-headings:font-bold prose-headings:mt-6 prose-p:my-2 prose-ul:my-2 prose-li:my-0 prose-ul:list-disc prose-ol:list-decimal">
+                <Markdown remarkPlugins={[remarkGfm]}>{project.sow}</Markdown>
               </div>
             </Card>
 
@@ -343,8 +344,8 @@ export default function ProjectDetails() {
                               </div>
                             )}
                             {app.message ? (
-                              <div className="mt-3 bg-muted/30 p-5 rounded-xl border border-border prose prose-sm max-w-none dark:prose-invert">
-                                <Markdown>{app.message}</Markdown>
+                              <div className="mt-3 bg-muted/30 p-5 rounded-xl border border-border prose prose-sm max-w-none dark:prose-invert prose-headings:font-bold prose-headings:mt-4 prose-p:my-2 prose-ul:my-2 prose-li:my-0 prose-ul:list-disc prose-ol:list-decimal">
+                                <Markdown remarkPlugins={[remarkGfm]}>{app.message}</Markdown>
                               </div>
                             ) : (
                               <div className="text-sm text-muted-foreground mt-3 bg-muted/30 p-3 rounded-xl border border-border leading-relaxed italic">
