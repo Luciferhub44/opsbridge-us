@@ -38,7 +38,8 @@ import MessagingSystem from '@/components/messaging/MessagingSystem';
 import { ProviderProfileContent } from './ProviderProfile';
 import Tasks from '@/components/dashboard/Tasks';
 import Payments from '@/components/dashboard/Payments';
-import { CheckCircle2 as TasksIcon, CreditCard } from 'lucide-react';
+import Support from '@/components/dashboard/Support';
+import { CheckCircle2 as TasksIcon, CreditCard, LifeBuoy } from 'lucide-react';
 
 import logoUrl from '../assets/logo.svg';
 
@@ -702,6 +703,7 @@ export default function Dashboard() {
               },
               profile?.role === 'admin' && { id: 'providers', label: 'Providers', icon: Users },
               { id: 'documents', label: 'Documents', icon: ShieldCheck },
+              { id: 'support', label: 'Support & FAQ', icon: LifeBuoy },
               { id: 'settings', label: 'Settings', icon: Settings },
               profile?.role === 'admin' && { id: 'admin', label: 'Admin', icon: ShieldCheck },
             ].filter(Boolean).map((item: any) => (
@@ -1054,6 +1056,10 @@ export default function Dashboard() {
 
         {activeTab === 'documents' && (
           <Documents />
+        )}
+
+        {activeTab === 'support' && (
+          <Support />
         )}
 
         {activeTab === 'settings' && (
