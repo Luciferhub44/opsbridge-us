@@ -17,17 +17,22 @@ import {
   Paperclip,
   FileText,
   Send,
-  Download
+  Download,
+  FileSignature,
+  PenTool
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'sonner';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function Tasks() {
   const { profile } = useAuth();
   const [projects, setProjects] = useState<any[]>([]);
   const [tasks, setTasks] = useState<any[]>([]);
+  const [agreements, setAgreements] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [isAddingTask, setIsAddingTask] = useState(false);
@@ -40,6 +45,11 @@ export default function Tasks() {
   const [newComment, setNewComment] = useState('');
   const [uploadingFile, setUploadingFile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Agreements State
+  const [signingAgreement, setSigningAgreement] = useState<any | null>(null);
+  const [signature, setSignature] = useState('');
+  const [signing, setSigning] = useState(false);
 
   useEffect(() => {
     if (!profile) return;
@@ -69,6 +79,7 @@ export default function Tasks() {
           }
 
           const projectIds = assignedProjects.map(p => p.id);
+          
           const { data: tasksData, error: tasksError } = await supabase
             .from('project_tasks')
             .select('*')
@@ -77,6 +88,15 @@ export default function Tasks() {
 
           if (tasksError) throw tasksError;
           setTasks(tasksData || []);
+
+          const { data: agreementsData, error: agreementsError } = await supabase
+            .from('agreements')
+            .select('*')
+            .in('project_id', projectIds);
+
+          if (!agreementsError) {
+            setAgreements(agreementsData || []);
+          }
         }
       } catch (error) {
         console.error("Error fetching tasks data:", error);
@@ -97,8 +117,19 @@ export default function Tasks() {
       )
       .subscribe();
 
+    const agreementsChannel = supabase
+      .channel('agreements_changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'agreements' }, 
+        () => {
+          fetchData(); 
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(channel);
+      supabase.removeChannel(agreementsChannel);
     };
   }, [profile, selectedProjectId]);
 
@@ -327,6 +358,47 @@ export default function Tasks() {
     }
   };
 
+  const handleSignAgreement = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!signingAgreement || !signature.trim()) return;
+
+    setSigning(true);
+    try {
+      const { error } = await supabase
+        .from('agreements')
+        .update({
+          status: 'signed',
+          signature: signature.trim(),
+          signed_at: new Date().toISOString()
+        })
+        .eq('id', signingAgreement.id);
+
+      if (error) throw error;
+
+      toast.success(`${signingAgreement.type.toUpperCase()} signed successfully!`);
+      setSigningAgreement(null);
+      setSignature('');
+
+      // Notify the client that the provider signed
+      const project = projects.find(p => p.id === signingAgreement.project_id);
+      if (project) {
+        await supabase.from('notifications').insert([
+          {
+            user_id: project.client_id,
+            title: 'Agreement Signed',
+            message: `The provider has signed the ${signingAgreement.type.toUpperCase()} for "${project.title}".`,
+            read: false
+          }
+        ]);
+      }
+    } catch (error) {
+      console.error('Error signing agreement:', error);
+      toast.error('Failed to sign agreement. Please try again.');
+    } finally {
+      setSigning(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-4">
@@ -367,6 +439,9 @@ export default function Tasks() {
 
   const selectedProjectTasks = tasks.filter(t => t.project_id === selectedProjectId);
   const selectedProject = projects.find(p => p.id === selectedProjectId);
+  
+  const selectedProjectAgreements = agreements.filter(a => a.project_id === selectedProjectId);
+  const pendingAgreements = selectedProjectAgreements.filter(a => a.status === 'pending');
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -380,7 +455,7 @@ export default function Tasks() {
             <p className="text-muted-foreground mt-1 font-medium">Manage instructions and deliverables for your active projects.</p>
           </div>
         </div>
-        {profile?.role === 'client' && selectedProjectId && (
+        {profile?.role === 'client' && selectedProjectId && pendingAgreements.length === 0 && (
           <Button 
             className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all shadow-md active:scale-95 gap-2"
             onClick={() => setIsAddingTask(true)}
@@ -395,187 +470,233 @@ export default function Tasks() {
         <div className="lg:col-span-1 space-y-4">
           <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-2">Active Projects</h3>
           <div className="space-y-2">
-            {projects.map((project) => (
-              <button
-                key={project.id}
-                onClick={() => setSelectedProjectId(project.id)}
-                className={cn(
-                  "w-full text-left px-4 py-3 rounded-xl border transition-all flex flex-col gap-1",
-                  selectedProjectId === project.id 
-                    ? "bg-primary/5 border-primary/30 shadow-sm" 
-                    : "bg-card border-border hover:bg-muted"
-                )}
-              >
-                <span className={cn(
-                  "font-bold text-sm truncate",
-                  selectedProjectId === project.id ? "text-primary" : "text-foreground"
-                )}>
-                  {project.title}
-                </span>
-                <span className="text-[10px] text-muted-foreground font-medium flex items-center justify-between">
-                  <span>{tasks.filter(t => t.project_id === project.id).length} Tasks</span>
-                  {tasks.filter(t => t.project_id === project.id && t.status === 'completed').length} completed
-                </span>
-              </button>
-            ))}
+            {projects.map((project) => {
+              const projectPendingAgreements = agreements.filter(a => a.project_id === project.id && a.status === 'pending');
+              
+              return (
+                <button
+                  key={project.id}
+                  onClick={() => setSelectedProjectId(project.id)}
+                  className={cn(
+                    "w-full text-left px-4 py-3 rounded-xl border transition-all flex flex-col gap-1",
+                    selectedProjectId === project.id 
+                      ? "bg-primary/5 border-primary/30 shadow-sm" 
+                      : "bg-card border-border hover:bg-muted"
+                  )}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span className={cn(
+                      "font-bold text-sm truncate flex-1 pr-2",
+                      selectedProjectId === project.id ? "text-primary" : "text-foreground"
+                    )}>
+                      {project.title}
+                    </span>
+                    {projectPendingAgreements.length > 0 && (
+                      <AlertCircle className="h-4 w-4 text-rose-500 shrink-0" />
+                    )}
+                  </div>
+                  <span className="text-[10px] text-muted-foreground font-medium flex items-center justify-between w-full">
+                    {projectPendingAgreements.length > 0 ? (
+                      <span className="text-rose-500 font-bold uppercase tracking-wider">Action Required</span>
+                    ) : (
+                      <>
+                        <span>{tasks.filter(t => t.project_id === project.id).length} Tasks</span>
+                        {tasks.filter(t => t.project_id === project.id && t.status === 'completed').length} completed
+                      </>
+                    )}
+                  </span>
+                </button>
+              )
+            })}
           </div>
         </div>
 
         <div className="lg:col-span-3 space-y-6">
-          {isAddingTask && profile?.role === 'client' && (
-            <Card className="p-6 border border-primary/20 bg-primary/5 rounded-2xl shadow-sm relative">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="absolute top-4 right-4 text-muted-foreground hover:bg-muted"
-                onClick={() => setIsAddingTask(false)}
-              >
-                Cancel
-              </Button>
-              <h3 className="text-lg font-bold text-foreground mb-4">Add Task to {selectedProject?.title}</h3>
-              <form onSubmit={handleCreateTask} className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Task Title</label>
-                  <Input 
-                    required
-                    value={newTask.title}
-                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                    placeholder="e.g., Deliver preliminary compliance report"
-                    className="h-10 rounded-lg bg-background border-border"
-                  />
+          {pendingAgreements.length > 0 ? (
+             <Card className="p-8 border border-rose-200 bg-rose-50/50 rounded-2xl shadow-sm text-center flex flex-col items-center">
+                <div className="h-16 w-16 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 mb-6 border-4 border-rose-50">
+                  <FileSignature className="h-8 w-8" />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Instructions / Description</label>
-                  <textarea 
-                    className="w-full min-h-[100px] rounded-lg border border-border bg-background p-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                    value={newTask.description}
-                    onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                    placeholder="Provide detailed instructions..."
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Due Date (Optional)</label>
-                  <Input 
-                    type="date"
-                    value={newTask.dueDate}
-                    onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
-                    className="h-10 rounded-lg bg-background border-border"
-                  />
-                </div>
-                <div className="flex justify-end">
-                  <Button type="submit" disabled={savingTask} className="h-10 px-6 rounded-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm transition-all active:scale-95">
-                    {savingTask ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-                    {savingTask ? 'Saving...' : 'Save Task'}
-                  </Button>
-                </div>
-              </form>
-            </Card>
-          )}
+                <h3 className="text-2xl font-black text-foreground mb-2">Agreements Pending</h3>
+                <p className="text-muted-foreground max-w-md mx-auto mb-8 font-medium">
+                  {profile?.role === 'provider' 
+                    ? "Before you can view or accept tasks for this project, you must sign the required Non-Disclosure Agreement (NDA) and Memorandum of Understanding (MOU)." 
+                    : "Waiting for the provider to sign the project's NDA and MOU. Tasks cannot be assigned until these are completed."}
+                </p>
 
-          <Card className="overflow-hidden border border-border bg-card rounded-2xl shadow-sm">
-            <div className="border-b border-border bg-muted/20 px-6 py-5 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-foreground">Project Tasks & Assignments</h3>
-              <span className="text-xs font-semibold text-muted-foreground bg-background border border-border px-3 py-1 rounded-full">
-                {selectedProjectTasks.length} Total
-              </span>
-            </div>
-            
-            <div className="divide-y divide-border">
-              {selectedProjectTasks.length === 0 ? (
-                <div className="px-6 py-16 text-center">
-                  <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-4 border border-border text-muted-foreground">
-                    <CheckCircle2 className="h-6 w-6" />
-                  </div>
-                  <h4 className="text-base font-bold text-foreground">No tasks assigned yet.</h4>
-                  <p className="text-muted-foreground text-sm mt-1">
-                    {profile?.role === 'client' ? 'Create a task to instruct your provider.' : 'Waiting for client instructions.'}
-                  </p>
-                </div>
-              ) : (
-                selectedProjectTasks.map((task) => (
-                  <div 
-                    key={task.id} 
-                    className="p-6 hover:bg-muted/30 transition-colors group flex flex-col sm:flex-row gap-4 cursor-pointer"
-                    onClick={() => setSelectedTask(task)}
-                  >
-                    <div className="pt-1 shrink-0">
-                      <div
-                        className={cn(
-                          "h-6 w-6 rounded-full flex items-center justify-center border",
-                          task.status === 'completed' 
-                            ? "bg-emerald-500 border-emerald-500 text-white" 
-                            : task.status === 'in-progress'
-                            ? "bg-amber-100 border-amber-300 text-amber-600"
-                            : "bg-background border-border text-transparent"
-                        )}
+                {profile?.role === 'provider' && (
+                  <div className="flex flex-col gap-3 w-full max-w-sm mx-auto">
+                    {pendingAgreements.map(agreement => (
+                      <Button 
+                        key={agreement.id}
+                        onClick={() => setSigningAgreement(agreement)}
+                        className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm hover:shadow-md transition-all active:scale-95 flex items-center justify-center gap-2"
                       >
-                        {task.status === 'completed' && <CheckCircle2 className="h-4 w-4" />}
-                        {task.status === 'in-progress' && <Clock className="h-3 w-3" />}
-                      </div>
+                        <PenTool className="h-4 w-4" />
+                        Sign {agreement.type.toUpperCase()}
+                      </Button>
+                    ))}
+                  </div>
+                )}
+             </Card>
+          ) : (
+            <>
+              {isAddingTask && profile?.role === 'client' && (
+                <Card className="p-6 border border-primary/20 bg-primary/5 rounded-2xl shadow-sm relative">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="absolute top-4 right-4 text-muted-foreground hover:bg-muted"
+                    onClick={() => setIsAddingTask(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <h3 className="text-lg font-bold text-foreground mb-4">Add Task to {selectedProject?.title}</h3>
+                  <form onSubmit={handleCreateTask} className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Task Title</label>
+                      <Input 
+                        required
+                        value={newTask.title}
+                        onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                        placeholder="e.g., Deliver preliminary compliance report"
+                        className="h-10 rounded-lg bg-background border-border"
+                      />
                     </div>
-                    
-                    <div className="flex-1 min-w-0 space-y-2">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <h4 className={cn(
-                          "text-base font-bold transition-all",
-                          task.status === 'completed' ? "text-muted-foreground line-through" : "text-foreground"
-                        )}>
-                          {task.title}
-                        </h4>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Instructions / Description</label>
+                      <textarea 
+                        className="w-full min-h-[100px] rounded-lg border border-border bg-background p-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                        value={newTask.description}
+                        onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                        placeholder="Provide detailed instructions..."
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Due Date (Optional)</label>
+                      <Input 
+                        type="date"
+                        value={newTask.dueDate}
+                        onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+                        className="h-10 rounded-lg bg-background border-border"
+                      />
+                    </div>
+                    <div className="flex justify-end">
+                      <Button type="submit" disabled={savingTask} className="h-10 px-6 rounded-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm transition-all active:scale-95">
+                        {savingTask ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+                        {savingTask ? 'Saving...' : 'Save Task'}
+                      </Button>
+                    </div>
+                  </form>
+                </Card>
+              )}
+
+              <Card className="overflow-hidden border border-border bg-card rounded-2xl shadow-sm">
+                <div className="border-b border-border bg-muted/20 px-6 py-5 flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-foreground">Project Tasks & Assignments</h3>
+                  <span className="text-xs font-semibold text-muted-foreground bg-background border border-border px-3 py-1 rounded-full">
+                    {selectedProjectTasks.length} Total
+                  </span>
+                </div>
+                
+                <div className="divide-y divide-border">
+                  {selectedProjectTasks.length === 0 ? (
+                    <div className="px-6 py-16 text-center">
+                      <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-4 border border-border text-muted-foreground">
+                        <CheckCircle2 className="h-6 w-6" />
+                      </div>
+                      <h4 className="text-base font-bold text-foreground">No tasks assigned yet.</h4>
+                      <p className="text-muted-foreground text-sm mt-1">
+                        {profile?.role === 'client' ? 'Create a task to instruct your provider.' : 'Waiting for client instructions.'}
+                      </p>
+                    </div>
+                  ) : (
+                    selectedProjectTasks.map((task) => (
+                      <div 
+                        key={task.id} 
+                        className="p-6 hover:bg-muted/30 transition-colors group flex flex-col sm:flex-row gap-4 cursor-pointer"
+                        onClick={() => setSelectedTask(task)}
+                      >
+                        <div className="pt-1 shrink-0">
+                          <div
+                            className={cn(
+                              "h-6 w-6 rounded-full flex items-center justify-center border",
+                              task.status === 'completed' 
+                                ? "bg-emerald-500 border-emerald-500 text-white" 
+                                : task.status === 'in-progress'
+                                ? "bg-amber-100 border-amber-300 text-amber-600"
+                                : "bg-background border-border text-transparent"
+                            )}
+                          >
+                            {task.status === 'completed' && <CheckCircle2 className="h-4 w-4" />}
+                            {task.status === 'in-progress' && <Clock className="h-3 w-3" />}
+                          </div>
+                        </div>
                         
-                        <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
-                          <div className={cn(
-                              "h-7 rounded-md border px-3 py-1 flex items-center text-[10px] font-bold uppercase tracking-wider",
-                              task.status === 'completed' ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
-                              task.status === 'in-progress' ? "bg-amber-50 text-amber-600 border-amber-200" :
-                              "bg-background text-muted-foreground border-border"
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <h4 className={cn(
+                              "text-base font-bold transition-all",
+                              task.status === 'completed' ? "text-muted-foreground line-through" : "text-foreground"
                             )}>
-                            {task.status.replace('-', ' ')}
+                              {task.title}
+                            </h4>
+                            
+                            <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+                              <div className={cn(
+                                  "h-7 rounded-md border px-3 py-1 flex items-center text-[10px] font-bold uppercase tracking-wider",
+                                  task.status === 'completed' ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
+                                  task.status === 'in-progress' ? "bg-amber-50 text-amber-600 border-amber-200" :
+                                  "bg-background text-muted-foreground border-border"
+                                )}>
+                                {task.status.replace('-', ' ')}
+                              </div>
+
+                              {profile?.role === 'client' && (
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md"
+                                  onClick={(e) => { e.stopPropagation(); handleDeleteTask(task.id); }}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
                           </div>
 
-                          {profile?.role === 'client' && (
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md"
-                              onClick={(e) => { e.stopPropagation(); handleDeleteTask(task.id); }}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                          {task.description && (
+                            <p className={cn(
+                              "text-sm bg-muted/40 p-3 rounded-lg border border-border/50 line-clamp-2",
+                              task.status === 'completed' ? "text-muted-foreground/70" : "text-muted-foreground"
+                            )}>
+                              {task.description}
+                            </p>
                           )}
+
+                          <div className="flex items-center gap-4 text-xs font-medium text-muted-foreground mt-2">
+                            {task.due_date && (
+                              <span className={cn(
+                                "flex items-center gap-1",
+                                new Date(task.due_date) < new Date() && task.status !== 'completed' ? "text-rose-500" : ""
+                              )}>
+                                <Calendar className="h-3 w-3" />
+                                Due {new Date(task.due_date).toLocaleDateString()}
+                              </span>
+                            )}
+                            <span className="flex items-center gap-1">
+                              <MessageSquare className="h-3 w-3" />
+                              Click to open task details
+                            </span>
+                          </div>
                         </div>
                       </div>
-
-                      {task.description && (
-                        <p className={cn(
-                          "text-sm bg-muted/40 p-3 rounded-lg border border-border/50 line-clamp-2",
-                          task.status === 'completed' ? "text-muted-foreground/70" : "text-muted-foreground"
-                        )}>
-                          {task.description}
-                        </p>
-                      )}
-
-                      <div className="flex items-center gap-4 text-xs font-medium text-muted-foreground mt-2">
-                        {task.due_date && (
-                          <span className={cn(
-                            "flex items-center gap-1",
-                            new Date(task.due_date) < new Date() && task.status !== 'completed' ? "text-rose-500" : ""
-                          )}>
-                            <Calendar className="h-3 w-3" />
-                            Due {new Date(task.due_date).toLocaleDateString()}
-                          </span>
-                        )}
-                        <span className="flex items-center gap-1">
-                          <MessageSquare className="h-3 w-3" />
-                          Click to open task details
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </Card>
+                    ))
+                  )}
+                </div>
+              </Card>
+            </>
+          )}
         </div>
       </div>
 
@@ -747,6 +868,61 @@ export default function Tasks() {
               </form>
             </div>
             
+          </Card>
+        </div>
+      )}
+
+      {/* Agreement Signing Modal */}
+      {signingAgreement && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <Card className="w-full max-w-2xl max-h-[90vh] flex flex-col p-0 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden relative">
+            <div className="flex items-center justify-between p-6 border-b border-border bg-muted/10 shrink-0">
+               <div>
+                  <div className="flex items-center gap-2 text-primary font-bold mb-1">
+                     <FileSignature className="h-5 w-5" />
+                     Sign Document
+                  </div>
+                  <h3 className="text-xl font-black text-foreground">
+                    {signingAgreement.type === 'nda' ? 'Non-Disclosure Agreement' : 'Memorandum of Understanding'}
+                  </h3>
+               </div>
+               <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setSigningAgreement(null)}
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/80 rounded-full"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-8 bg-muted/5 border-b border-border">
+              <div className="prose prose-stone prose-sm max-w-none dark:prose-invert prose-headings:font-bold prose-headings:text-foreground prose-p:text-muted-foreground">
+                 <Markdown remarkPlugins={[remarkGfm]}>{signingAgreement.content}</Markdown>
+              </div>
+            </div>
+            <div className="p-6 bg-card shrink-0 space-y-4">
+               <p className="text-sm font-medium text-foreground">By typing your name below, you are signing this agreement electronically.</p>
+               <form onSubmit={handleSignAgreement} className="flex flex-col sm:flex-row items-center gap-4">
+                 <div className="flex-1 w-full relative">
+                    <PenTool className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      required
+                      value={signature}
+                      onChange={(e) => setSignature(e.target.value)}
+                      placeholder="Type your full legal name to sign"
+                      className="h-12 pl-10 rounded-xl bg-background border-border shadow-sm focus:ring-primary/20 text-base"
+                    />
+                 </div>
+                 <Button 
+                   type="submit" 
+                   disabled={signing || !signature.trim()}
+                   className="h-12 px-8 rounded-xl bg-primary text-primary-foreground font-bold shadow-md hover:shadow-lg transition-all active:scale-95 w-full sm:w-auto"
+                 >
+                   {signing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
+                   Sign & Accept
+                 </Button>
+               </form>
+            </div>
           </Card>
         </div>
       )}

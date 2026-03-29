@@ -191,7 +191,68 @@ export default function ProjectDetails() {
         
       if (projectError) throw projectError;
 
-      // 3. Reject other pending applications
+      // 3. Generate NDA & MOU agreements
+      const providerName = app.provider?.company_name || app.provider?.display_name || 'Provider';
+      const clientName = profile?.company_name || profile?.display_name || 'Client';
+
+      const ndaContent = `# NON-DISCLOSURE AGREEMENT
+
+This Non-Disclosure Agreement (this "Agreement") is entered into by and between **OpsBridge** ("Disclosing Party") and **${providerName}** ("Receiving Party").
+
+**1. Purpose**
+The Receiving Party wishes to engage in discussions regarding potential business opportunities with the Disclosing Party and its clients.
+
+**2. Confidential Information**
+"Confidential Information" means any information disclosed by either party to the other party, either directly or indirectly, in writing, orally, or by inspection of tangible objects.
+
+**3. Obligations**
+The Receiving Party agrees to maintain the Confidential Information in strict confidence and to use the Confidential Information solely for the Purpose.
+
+**4. Term**
+This Agreement shall remain in effect for a period of two (2) years from the date of disclosure.
+
+IN WITNESS WHEREOF, the parties have executed this Agreement by their electronic signature.`;
+
+      const mouContent = `# MEMORANDUM OF UNDERSTANDING
+
+This Memorandum of Understanding (this "MOU") is entered into by and between **${clientName}** ("Client") and **${providerName}** ("Provider") regarding the project **"${project.title}"**.
+
+**1. Purpose and Scope**
+The purpose of this MOU is to clearly identify the roles and responsibilities of each party as they relate to the implementation of the project.
+
+**2. Responsibilities**
+- The Provider agrees to perform the services detailed in the Project Scope of Work.
+- The Client agrees to provide necessary information and compensate the Provider as agreed upon through the OpsBridge platform.
+
+**3. General Provisions**
+This MOU is not intended to be legally binding but serves as a framework for the professional relationship and operational execution.
+
+IN WITNESS WHEREOF, the parties have executed this MOU by their electronic signature.`;
+
+      const { error: agreementsError } = await supabase
+        .from('agreements')
+        .insert([
+          {
+            project_id: id,
+            client_id: profile.id,
+            provider_id: app.provider_id,
+            type: 'nda',
+            content: ndaContent,
+            status: 'pending'
+          },
+          {
+            project_id: id,
+            client_id: profile.id,
+            provider_id: app.provider_id,
+            type: 'mou',
+            content: mouContent,
+            status: 'pending'
+          }
+        ]);
+
+      if (agreementsError) throw agreementsError;
+
+      // 4. Reject other pending applications
       const { error: rejectError } = await supabase
         .from('project_applications')
         .update({ status: 'rejected' })
