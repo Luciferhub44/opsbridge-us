@@ -14,12 +14,18 @@ import {
   Trash2,
   FileIcon,
   Search,
-  Filter
+  Filter,
+  Check
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'sonner';
+
+const REQUIRED_DOCUMENTS = [
+  { id: 'Identification Document', name: 'Identification Document', desc: 'Valid Government issued ID (Passport, Driver License)' },
+  { id: 'Certificate of Incorporation', name: 'Company Certificate of Incorporation', desc: 'Official company registration certificate' }
+];
 
 export default function Documents() {
   const { profile } = useAuth();
@@ -28,7 +34,9 @@ export default function Documents() {
   const [uploading, setUploading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [viewingDocument, setViewingDocument] = useState<any>(null);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const activeCategoryRef = useRef<string>('Other');
 
   const fetchDocuments = async () => {
     if (!profile) return;
@@ -72,6 +80,11 @@ export default function Documents() {
     };
   }, [profile]);
 
+  const triggerUpload = (category: string) => {
+    activeCategoryRef.current = category;
+    fileInputRef.current?.click();
+  };
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !profile) return;
@@ -79,6 +92,7 @@ export default function Documents() {
     // Validate file size (e.g., 10MB)
     if (file.size > 10 * 1024 * 1024) {
       toast.error('File size too large. Maximum size is 10MB.');
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
@@ -105,7 +119,8 @@ export default function Documents() {
           type: fileExt?.toUpperCase() || 'FILE',
           size: file.size,
           url: publicUrl,
-          status: 'pending'
+          status: 'pending',
+          category: activeCategoryRef.current
         }
       ]);
 
@@ -118,6 +133,7 @@ export default function Documents() {
       toast.error(error.message || 'Failed to upload document');
     } finally {
       setUploading(false);
+      activeCategoryRef.current = 'Other';
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
@@ -127,7 +143,6 @@ export default function Documents() {
 
     try {
       // Extract file path from URL
-      // https://.../storage/v1/object/public/documents/USER_ID/FILENAME
       const pathParts = url.split('documents/');
       if (pathParts.length > 1) {
         const filePath = pathParts[1];
@@ -158,7 +173,8 @@ export default function Documents() {
   };
 
   const filteredDocuments = documents.filter(doc => 
-    doc.name.toLowerCase().includes(searchTerm.toLowerCase())
+    doc.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (doc.category && doc.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -185,11 +201,11 @@ export default function Documents() {
           />
           <Button 
             className="gap-2 h-11 px-6 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all shadow-md active:scale-95" 
-            onClick={() => fileInputRef.current?.click()} 
+            onClick={() => triggerUpload('Other')} 
             disabled={uploading}
           >
-            {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
-            {uploading ? 'Uploading...' : 'Upload File'}
+            {uploading && activeCategoryRef.current === 'Other' ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
+            {uploading && activeCategoryRef.current === 'Other' ? 'Uploading...' : 'Upload General File'}
           </Button>
         </div>
       </div>
@@ -212,6 +228,81 @@ export default function Documents() {
           </div>
         </div>
       </Card>
+
+      {/* Provider Required Documents */}
+      {profile?.role === 'provider' && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-bold text-foreground">Required Documentation</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {REQUIRED_DOCUMENTS.map((reqDoc) => {
+              // Check if user has uploaded a document for this category
+              const uploadedDoc = documents.find(d => d.category === reqDoc.id);
+              const isUploadingThis = uploading && activeCategoryRef.current === reqDoc.id;
+
+              return (
+                <Card key={reqDoc.id} className="p-5 border border-border bg-card rounded-2xl shadow-sm flex flex-col justify-between gap-4">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="font-bold text-foreground">{reqDoc.name}</h4>
+                      <p className="text-xs text-muted-foreground mt-1">{reqDoc.desc}</p>
+                    </div>
+                    {uploadedDoc ? (
+                      <div className="h-8 w-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 shrink-0">
+                        <Check className="h-5 w-5" />
+                      </div>
+                    ) : (
+                      <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 shrink-0">
+                        <AlertCircle className="h-5 w-5" />
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center justify-between mt-2 pt-4 border-t border-border">
+                    {uploadedDoc ? (
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 text-sm">
+                          <FileText className="h-4 w-4 text-primary shrink-0" />
+                          <span className="truncate font-medium text-foreground">{uploadedDoc.name}</span>
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
+                           <span className={cn(
+                              "px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider",
+                              uploadedDoc.status === 'verified' ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-amber-50 text-amber-600 border border-amber-100"
+                            )}>
+                              {uploadedDoc.status || 'Pending'}
+                           </span>
+                           {new Date(uploadedDoc.created_at).toLocaleDateString()}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-sm font-medium text-amber-600">Action Required</div>
+                    )}
+                    
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => uploadedDoc ? setViewingDocument(uploadedDoc) : triggerUpload(reqDoc.id)}
+                      disabled={uploading}
+                      className={cn(
+                        "h-9 shrink-0 ml-4 font-semibold",
+                        uploadedDoc ? "border-border hover:bg-muted" : "border-primary text-primary hover:bg-primary/5"
+                      )}
+                    >
+                      {isUploadingThis ? (
+                         <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : uploadedDoc ? (
+                         'View'
+                      ) : (
+                         <><Upload className="h-3 w-3 mr-2" /> Upload</>
+                      )}
+                    </Button>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Main Repository Card */}
       <Card className="overflow-hidden border border-border bg-card rounded-2xl shadow-sm">
@@ -261,7 +352,7 @@ export default function Documents() {
                 <Button 
                   variant="outline" 
                   className="rounded-xl font-bold text-sm border-2"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => triggerUpload('Other')}
                 >
                   Upload Your First File
                 </Button>
@@ -284,6 +375,11 @@ export default function Documents() {
                     <div className="min-w-0">
                       <div className="font-bold text-foreground text-base truncate group-hover:text-primary transition-colors">{doc.name}</div>
                       <div className="flex items-center gap-3 mt-1">
+                        {doc.category && doc.category !== 'Other' && (
+                          <span className="text-[10px] font-bold text-primary uppercase bg-primary/10 px-2 py-0.5 rounded">
+                            {doc.category}
+                          </span>
+                        )}
                         <span className="text-[10px] font-bold text-muted-foreground uppercase bg-muted px-2 py-0.5 rounded">
                           {doc.type}
                         </span>
