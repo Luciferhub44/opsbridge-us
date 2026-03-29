@@ -191,43 +191,102 @@ export default function ProjectDetails() {
         
       if (projectError) throw projectError;
 
-      // 3. Generate NDA & MOU agreements
       const providerName = app.provider?.company_name || app.provider?.display_name || 'Provider';
       const clientName = profile?.company_name || profile?.display_name || 'Client';
 
-      const ndaContent = `# NON-DISCLOSURE AGREEMENT
+      const ndaContent = `# MUTUAL NON-DISCLOSURE AGREEMENT
 
-This Non-Disclosure Agreement (this "Agreement") is entered into by and between **OpsBridge** ("Disclosing Party") and **${providerName}** ("Receiving Party").
+This Mutual Non-Disclosure Agreement (this "Agreement") is made and entered into as of the date of electronic signature (the "Effective Date") by and between **OpsBridge**, a platform facilitating business operations and expansion ("Disclosing Party"), and **${providerName}**, an independent service provider utilizing the platform ("Receiving Party").
 
-**1. Purpose**
-The Receiving Party wishes to engage in discussions regarding potential business opportunities with the Disclosing Party and its clients.
+**1. PURPOSE OF DISCLOSURE**
+The parties wish to explore a potential business relationship or transaction concerning operational support, expansion services, and project execution (the "Purpose"). In connection with the Purpose, the Disclosing Party may disclose to the Receiving Party certain confidential, proprietary, or trade secret information. This Agreement is intended to allow the parties to engage in candid discussions while fully protecting the confidentiality of such information.
 
-**2. Confidential Information**
-"Confidential Information" means any information disclosed by either party to the other party, either directly or indirectly, in writing, orally, or by inspection of tangible objects.
+**2. DEFINITION OF CONFIDENTIAL INFORMATION**
+"Confidential Information" means any and all non-public, proprietary, or confidential information disclosed by the Disclosing Party to the Receiving Party, whether disclosed orally, in writing, visually, or electronically. This includes, but is not limited to: business plans, financial models, client lists, customer data, intellectual property, technical specifications, operational workflows, software code, algorithms, pricing structures, marketing strategies, and any information related to the Disclosing Party's clients or end-users. Confidential Information also includes any analyses, compilations, studies, or other documents prepared by the Receiving Party that contain or reflect such information.
 
-**3. Obligations**
-The Receiving Party agrees to maintain the Confidential Information in strict confidence and to use the Confidential Information solely for the Purpose.
+**3. EXCLUSIONS FROM CONFIDENTIAL INFORMATION**
+The obligations of confidentiality shall not apply to any information that: 
+(a) was already known to the Receiving Party at the time of disclosure without an obligation of confidentiality; 
+(b) is or becomes publicly known through no wrongful act or breach of this Agreement by the Receiving Party; 
+(c) is rightfully received by the Receiving Party from a third party without restriction on disclosure and without breach of a non-disclosure obligation; or 
+(d) is independently developed by the Receiving Party without the use of or reference to the Disclosing Party's Confidential Information, as evidenced by written records.
 
-**4. Term**
-This Agreement shall remain in effect for a period of two (2) years from the date of disclosure.
+**4. OBLIGATIONS OF RECEIVING PARTY**
+The Receiving Party agrees to: 
+(a) hold the Confidential Information in the strictest confidence and take all reasonable precautions to protect such information (which precautions shall be no less than those employed by the Receiving Party to protect its own confidential information); 
+(b) not disclose any Confidential Information to any third party without the prior written consent of the Disclosing Party; 
+(c) not use any Confidential Information for any purpose whatsoever other than the Purpose explicitly stated in this Agreement; and 
+(d) restrict access to the Confidential Information solely to its employees, officers, or advisors who have a strict "need to know" in order to fulfill the Purpose, provided that such individuals are bound by confidentiality obligations at least as restrictive as those contained herein.
 
-IN WITNESS WHEREOF, the parties have executed this Agreement by their electronic signature.`;
+**5. COMPELLED DISCLOSURE**
+If the Receiving Party is compelled by law, regulation, or a valid order of a court or other governmental authority to disclose any Confidential Information, the Receiving Party shall promptly notify the Disclosing Party in writing prior to making any such disclosure. This notice must be provided in sufficient time to allow the Disclosing Party to seek a protective order or other appropriate remedy. If such protective order is not obtained, the Receiving Party may disclose only that portion of the Confidential Information that is legally required and shall exercise reasonable efforts to obtain reliable assurance that confidential treatment will be accorded to the information disclosed.
 
-      const mouContent = `# MEMORANDUM OF UNDERSTANDING
+**6. RETURN OR DESTRUCTION OF MATERIALS**
+Upon the written request of the Disclosing Party, or upon the termination of the business relationship or the Purpose, the Receiving Party shall promptly return or safely destroy all documents, digital files, and other tangible materials representing the Confidential Information and all copies thereof. Upon request, the Receiving Party shall provide written certification of such destruction.
 
-This Memorandum of Understanding (this "MOU") is entered into by and between **${clientName}** ("Client") and **${providerName}** ("Provider") regarding the project **"${project.title}"**.
+**7. NO LICENSE OR OWNERSHIP**
+Nothing in this Agreement is intended to grant any rights to the Receiving Party under any patent, mask work right, copyright, trade secret, or other intellectual property right of the Disclosing Party. All Confidential Information shall remain the sole and exclusive property of the Disclosing Party.
 
-**1. Purpose and Scope**
-The purpose of this MOU is to clearly identify the roles and responsibilities of each party as they relate to the implementation of the project.
+**8. NO OBLIGATION TO PROCEED**
+Nothing herein shall obligate either party to proceed with any transaction between them, and each party reserves the right, in its sole discretion, to terminate the discussions contemplated by this Agreement concerning the Purpose.
 
-**2. Responsibilities**
-- The Provider agrees to perform the services detailed in the Project Scope of Work.
-- The Client agrees to provide necessary information and compensate the Provider as agreed upon through the OpsBridge platform.
+**9. TERM AND TERMINATION**
+This Agreement shall govern all communications between the parties. The Receiving Party's obligations under this Agreement shall survive the termination of the parties' business relationship and shall continue for a period of five (5) years from the date of the last disclosure of Confidential Information, except with respect to trade secrets, which shall remain confidential indefinitely as long as they maintain their status as trade secrets under applicable law.
 
-**3. General Provisions**
-This MOU is not intended to be legally binding but serves as a framework for the professional relationship and operational execution.
+**10. REMEDIES**
+The Receiving Party acknowledges that unauthorized disclosure or use of Confidential Information could cause irreparable harm and significant injury to the Disclosing Party, which may be difficult to ascertain. Accordingly, the Receiving Party agrees that the Disclosing Party shall have the right to seek an immediate injunction enjoining any breach or threatened breach of this Agreement, in addition to any other rights and remedies available at law or in equity.
 
-IN WITNESS WHEREOF, the parties have executed this MOU by their electronic signature.`;
+**11. MISCELLANEOUS**
+This Agreement constitutes the entire understanding between the parties concerning the subject matter hereof and supersedes all prior discussions, agreements, and representations. This Agreement may not be amended except in a writing signed by both parties. If any provision of this Agreement is found to be unenforceable, the remainder shall be enforced as fully as possible, and the unenforceable provision shall be deemed modified to the limited extent required to permit its enforcement.
+
+IN WITNESS WHEREOF, the parties have executed this Non-Disclosure Agreement by their electronic signature through the OpsBridge platform.`;
+
+      const mouContent = `# MEMORANDUM OF UNDERSTANDING & SERVICE LEVEL AGREEMENT
+
+This Memorandum of Understanding (this "MOU") is made effective as of the date of electronic signature by and between **${clientName}** (hereinafter referred to as the "Client") and **${providerName}** (hereinafter referred to as the "Provider").
+
+**1. BACKGROUND AND CONTEXT**
+The Client has posted a requirement for operational expansion, services, or support on the OpsBridge platform under the project titled **"${project.title}"** (the "Project"). The Provider has submitted a formal application and proposal to fulfill these requirements, which the Client has formally accepted. This MOU serves to establish the foundational terms, responsibilities, and operational framework under which the Provider will execute the Project.
+
+**2. STATEMENT OF INTENT**
+The primary objective of this MOU is to create a collaborative and transparent working relationship between the Client and the Provider. Both parties commit to communicating openly, acting in good faith, and actively working towards the successful completion of the Project as defined by the agreed-upon Scope of Work.
+
+**3. SCOPE OF SERVICES**
+The Provider agrees to dedicate the necessary time, resources, expertise, and personnel to execute the tasks outlined in the Project's Scope of Work (SOW). The Provider commits to delivering high-quality results that meet or exceed industry standards and align with the specific operational goals stipulated by the Client during the project briefing phase.
+
+**4. CLIENT RESPONSIBILITIES**
+To facilitate the successful execution of the Project, the Client agrees to:
+(a) Provide timely access to all necessary information, documentation, and internal resources required by the Provider.
+(b) Assign a primary point of contact who possesses the authority to make decisions, provide approvals, and offer feedback on behalf of the Client.
+(c) Review deliverables and provide constructive, actionable feedback within the timeframes established in the Project schedule.
+(d) Ensure timely scheduling and processing of payments through the OpsBridge platform upon the completion of agreed-upon milestones or deliverables.
+
+**5. PROVIDER RESPONSIBILITIES**
+In executing the Project, the Provider agrees to:
+(a) Perform all services professionally, diligently, and in a workmanlike manner, utilizing suitably qualified personnel.
+(b) Maintain regular communication with the Client, providing status updates, milestone reports, and immediate notification of any anticipated delays or operational blockers.
+(c) Comply with all applicable local, state, and federal laws and regulations pertinent to the execution of the services.
+(d) Actively manage and update task statuses within the OpsBridge platform to ensure the Client has real-time visibility into project progress.
+
+**6. MILESTONES AND DELIVERABLES**
+The specific milestones, deliverables, and timelines will be managed dynamically via the 'Tasks' interface within the OpsBridge platform. Both parties agree that the creation, modification, and completion of tasks within the platform represent the binding operational timeline for the Project.
+
+**7. FINANCIAL ARRANGEMENTS**
+Compensation for the services rendered under this MOU shall be governed by the budget outlined in the Project brief and finalized through the payment schedules set up by the Client on the OpsBridge platform. The Provider acknowledges that OpsBridge acts as the intermediary for payment processing and agrees to the platform's terms regarding fund disbursement and settlement timelines.
+
+**8. INTELLECTUAL PROPERTY**
+Unless otherwise explicitly agreed upon in a separate, written contract, all work product, deliverables, data, and intellectual property generated by the Provider specifically for the Client during the course of the Project shall become the sole and exclusive property of the Client upon the full payment of associated invoices.
+
+**9. DISPUTE RESOLUTION**
+In the event of a dispute, disagreement, or claim arising out of or relating to this MOU or the execution of the Project, the parties agree to first attempt to resolve the matter amicably through direct, good-faith negotiations. If the dispute cannot be resolved within thirty (30) days of written notice, the parties may escalate the issue to OpsBridge platform administration for mediation before seeking formal legal remedies.
+
+**10. MODIFICATION AND TERMINATION**
+This MOU may be amended, modified, or supplemented only by a written mutual agreement executed by both the Client and the Provider. Either party may terminate this MOU and the associated Project engagement by providing written notice to the other party via the platform's messaging system, subject to the settlement of any outstanding payments for work already completed.
+
+**11. LEGAL STATUS**
+While this MOU serves as a strong statement of operational intent and professional commitment, the parties acknowledge that it is designed to facilitate collaboration on the OpsBridge platform. Specific legal liabilities and indemnifications, where required beyond the scope of this document, should be addressed in independent contractual agreements between the Client and the Provider.
+
+IN WITNESS WHEREOF, the Client and the Provider have executed this Memorandum of Understanding by their electronic signatures through the OpsBridge platform.`;
 
       const { error: agreementsError } = await supabase
         .from('agreements')
