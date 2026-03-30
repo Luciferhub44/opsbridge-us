@@ -80,7 +80,7 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <div className="text-sm font-bold text-muted-foreground">
-                  Joined by 200+ <br/> US Agencies
+                  Joined by 80,000+ <br/> US Agencies
                 </div>
               </div>
             </div>
